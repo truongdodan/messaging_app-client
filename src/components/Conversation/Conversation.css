@@ -1,0 +1,49 @@
+.conversation-item {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+
+    color: var(--color-txt);
+    border-radius: var(--size-border-radius);
+    padding: 0.5rem 0.75rem;
+}
+
+.conversation-selected {
+    background-color: var(--color-bg-tertiary);
+}
+
+
+.profile-wrapper {
+    max-width: 1.75rem;
+
+    position: relative;
+}
+.profile-wrapper img {
+    border-radius: 5rem;
+}
+
+.active-indicator {
+    width: 0.5rem;
+    height: 0.5rem;
+
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    border-radius: 50%;
+}
+.online {
+    background-color: rgb(8, 204, 8);
+}
+.offline {
+    background-color: gray;
+}
+
+.conversation-item__title {
+    font-size: 0.7rem;
+}
+
+.username {
+    color: var(--color-txt-secondary);
+    font-size: 0.6rem;
+}

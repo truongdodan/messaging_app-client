@@ -1,0 +1,74 @@
+.message {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+
+    color: var(--color-txt);
+}
+
+/* Message type style */
+.message--text {
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    background-color: var(--color-bg-tertiary);
+}
+.message--image {
+    width: 70%;
+
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+/* Message origin style -- from one self or others */
+.message--self {
+    justify-content:  flex-end;
+}
+.message--other {
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+}
+/* style, grid layout for msg from others */
+.message__grid-wrapper {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-auto-rows: auto;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+}
+.message__profile {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+
+    width: 2rem;
+    aspect-ratio: 1/1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: white;
+    
+}
+.message__profile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.message__username {
+    grid-column: 2 / 3;
+
+    font-size: var(--size-txt-small);
+    color: var(--color-txt-secondary);
+}
+.message__content {
+    grid-row: 2 / 3;
+}
+
+/* hid username when in direct conversation */
+.conversation--direct .message__username {
+    display: none;
+}

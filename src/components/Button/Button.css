@@ -1,0 +1,13 @@
+.active-button {
+    width: fit-content;
+
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+
+    padding: 0.5rem 1rem;
+    background-color: var(--color-button-bg);
+    color: var(--color-button-txt);
+    border-radius: var(--size-border-radius);
+    font-weight: 500;
+}
