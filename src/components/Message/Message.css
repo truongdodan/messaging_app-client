@@ -3,21 +3,26 @@
 
     display: flex;
     align-items: center;
-    column-gap: 0.5rem;
 
     color: var(--color-txt);
+    margin: 0.25rem 0;
 }
 
 /* Message type style */
 .message--text {
+    max-width: 60%;
+    width: fit-content;
+
+    font-size: smaller;
     padding: 0.5rem 1rem;
     border-radius: 1rem;
     background-color: var(--color-bg-tertiary);
 }
 .message--image {
-    width: 70%;
-
-    border-radius: 1rem;
+    max-width: 60%;
+}
+.message--image img {
+    border-radius: 0.5rem;
     overflow: hidden;
 }
 
@@ -31,17 +36,18 @@
 }
 /* style, grid layout for msg from others */
 .message__grid-wrapper {
+    width: 100%;
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto 1fr;
     grid-auto-rows: auto;
-    align-items: center;
+    align-items: end;
     gap: 0.25rem 0.75rem;
 }
 .message__profile {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
 
-    width: 2rem;
+    width: var(--size-profile);
     aspect-ratio: 1/1;
 
     display: flex;
@@ -71,4 +77,9 @@
 /* hid username when in direct conversation */
 .conversation--direct .message__username {
     display: none;
+}
+
+/* icon */
+.message-options {
+    flex-shrink: 0;
 }

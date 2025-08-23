@@ -1,7 +1,7 @@
 import Alert from "./Alert";
 
 export default {
-    title: 'Test Alert',
+    title: 'Component - Alert',
     component: Alert,
 }
 

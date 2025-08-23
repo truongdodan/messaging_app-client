@@ -2,7 +2,7 @@ import Button from './Button'
 import {Pen} from 'lucide-react';
 
 export default {
-    title: 'Test Button',
+    title: 'Component - Button',
     component: Button,
 }
 

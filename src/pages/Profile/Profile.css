@@ -1,0 +1,59 @@
+.profile {
+    width: 100%;
+    overflow: hidden;
+}
+
+/* side bar */
+.profile aside {
+    display: none;
+}
+.profile aside a {
+    text-decoration: none;
+    font-size: medium;
+}
+.profile__tabs {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.25rem;
+}
+.profile__tabs a {
+    padding: 0.5rem;
+    border-radius: var(--size-border-radius);
+}
+.profile__tabs a.selected, .profile__tabs a:hover {
+    background-color: var(--color-bg-tertiary);
+}
+
+/* form */
+.edit-profile__inputs {
+    display: flex;
+    flex-direction: column;
+    
+    row-gap: 1rem;
+}
+.edit-profile__inputs > div {
+    flex: 1;
+}
+
+/* Responsive */
+@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ }
+@media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
+@media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
+@media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
+    .profile aside {
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.5rem;
+    }
+    .profile__change-password-btn {
+        display: none;
+    }
+
+    /* form */
+    .edit-profile__inputs {
+        flex-direction: row;
+        column-gap: 3rem;
+    }
+}
+@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ }
+@media (min-width:1281px) { /* hi-res laptops and desktops */ }

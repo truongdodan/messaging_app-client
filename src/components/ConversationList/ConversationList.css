@@ -1,0 +1,31 @@
+/* header */
+.conversation-list {
+    height: 100%;
+}
+.conversation-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 1.25rem;
+}
+.conversation-list__body {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.75rem;
+}
+.icon-container.new-conversation {
+    /* width: 2.5rem; */
+    aspect-ratio: 1 / 1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+/* Responsive */
+@media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
+@media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
+@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ }
+@media (min-width:1281px) { /* hi-res laptops and desktops */ }

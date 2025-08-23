@@ -1,0 +1,110 @@
+
+.auth-wrapper {
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: var(--size-txt-small);
+    color: var(--color-txt);
+    padding: 0 3rem;
+}
+
+/* auth */
+.auth {
+    width: min(100%, 450px);
+}
+.auth__logo {
+    position: relative;
+    bottom: 1.5rem;
+}
+.auth__title {
+    font-size: var(--size-txt-big);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+.bg-img {
+    width: 100%;
+    height: 100%;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -9999;
+
+    object-fit: cover;
+}
+/* form */
+.auth__form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.25rem;
+}
+.auth__input {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.15rem;
+}
+.auth__buttons {
+    display: flex;
+    column-gap: 0.5rem;
+    justify-content: flex-end;
+}
+.auth__form > * {
+    color: var(--color-txt-secondary);
+}
+.auth__navigate {
+    font-size: small;
+}
+.auth__buttons .navigate-btn {
+    background-color: var(--color-bg);
+    color: var(--color-txt-secondary);
+}
+.auth__buttons .navigate-btn:hover {
+    background-color: var(--color-button-bg);
+    color: var(--color-button-txt);
+}
+.input {
+    padding: 0.25rem 0.5rem;
+
+    border-radius: var(--size-border-radius);
+    background-color: var(--color-bg-secondary);
+    color: var(--color-txt-secondary);
+    border: none;
+    outline: none;
+}
+/* logo */
+.auth-wrapper .img-wrapper img {
+    width: 70%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+
+    position: relative;
+    left: 5rem;
+
+    display: none;
+}
+
+
+/* Responsive */
+@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ }
+@media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
+@media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
+
+}
+@media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ }
+@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ 
+    .auth-wrapper .img-wrapper img {
+        display: block;
+    }
+    .auth-wrapper .fullname {
+        width: 100%;
+
+        display: flex;
+        column-gap: 0.5rem;
+    }
+}
+@media (min-width:1281px) { /* hi-res laptops and desktops */ }
+

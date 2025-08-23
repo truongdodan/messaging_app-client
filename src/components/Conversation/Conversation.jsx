@@ -7,11 +7,11 @@ const Conversation = ({conversation}) => {
   const isSelected = false;
 
   return (
-    <div className={isSelected ? 'conversation-item conversation-selected' : 'conversation-item'}>
+    <div className={isSelected ? 'conversation-item selected' : 'conversation-item'}>
         <div className="profile-wrapper">
-          {conversation?.profileUrl
+          {conversation?.profileUrl 
           ? <img src={conversation.profileUrl} alt="nahhh" />
-          : <img src="/user.png" alt="nahhh2" />
+          : <img src="https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.qNfoguQF-UXY1F1MdXDXrAHaHY%3Fr%3D0%26pid%3DApi&sp=1754728267T4c820c6395da181f8d757c444fd7934b934a0a309ad5066b61654c18be5ea922" alt="nahhh2" />
           }
           <div className={conversation?.isActive ? 'active-indicator online' : 'active-indicator offline'}></div>
         </div>

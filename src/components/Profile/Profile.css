@@ -1,0 +1,87 @@
+.profile {
+    height: 100%;
+
+    overflow-y: auto;
+}
+
+/* pictures */
+.profile__pictures {
+    position: relative;
+
+    padding: 0 0 3.5rem 0;
+    margin-bottom: 0.5rem;
+}
+.profile__cover-photo {
+    height: 15rem;
+
+    position: relative;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: var(--size-border-radius);
+    overflow: hidden;
+}
+.profile__cover-photo img, .profile__profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.profile__cover-photo .icon-container {
+    width: 2rem;
+    height: 2rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    z-index: 9999;
+
+    background-color: var(--color-bg-tertiary);
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0.5rem;
+    opacity: 0.7;
+}
+.profile__profile-picture {
+    width: 10rem;
+    aspect-ratio: 1 / 1;
+
+    position: absolute;
+    bottom: 0;
+    left: 0.75rem;
+}
+.profile__profile-picture img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+.profile__profile-picture .active-indicator {
+    width: 1.25rem;
+
+    bottom: 0.75rem;
+    right: 0.75rem;
+}
+
+/* profile body */
+.profile__information {
+    padding-left: 0.5rem;
+}
+.profile__buttons {
+    display: flex;
+    column-gap: 0.5rem;
+}
+.profile__bio {
+    margin: 1.5rem 0;
+}
+.profile__fullname {
+    font-weight: 550;
+    font-size: 1.75rem;
+}
+.profile__username, .profile__bio {
+    font-size: 1rem;
+    color: var(--color-txt-secondary);
+}

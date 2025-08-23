@@ -1,7 +1,7 @@
-import Conversation from './conversation';
+import Conversation from './Conversation';
 
 export default {
-    title: 'Conversation Test',
+    title: 'Component - Conversation',
     component: Conversation,
 }
 

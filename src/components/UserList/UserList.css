@@ -1,0 +1,58 @@
+/* header */
+.search-user__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.close-search-user svg{
+    width: 2rem;
+    height: 2rem;
+}
+
+/* user */
+.user-list {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5rem;
+}
+.user-item {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+
+    color: var(--color-txt);
+    border-radius: var(--size-border-radius);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+}
+.user-item:hover {
+    background-color: var(--color-bg-tertiary);
+}
+.user-item .profile-wrapper {
+    width: var(--size-profile);
+    aspect-ratio: 1 / 1;
+
+    position: relative;
+}
+.profile-wrapper img {
+    border-radius: 50%;
+}
+.user-item__title {
+    font-size: medium;
+}
+.username {
+    color: var(--color-txt-secondary);
+    font-size: 0.75rem;
+}
+
+/* form */
+.form--search-user {
+    display: flex;
+}
+.form--search-user .input {
+    flex: 1;
+
+    margin: 0.75rem 0;
+    border-radius: 1rem;
+    background-color: var(--color-bg-tertiary);
+}

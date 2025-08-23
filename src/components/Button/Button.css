@@ -9,5 +9,6 @@
     background-color: var(--color-button-bg);
     color: var(--color-button-txt);
     border-radius: var(--size-border-radius);
-    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
 }

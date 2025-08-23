@@ -5,26 +5,27 @@
 
     color: var(--color-txt);
     border-radius: var(--size-border-radius);
-    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    padding: 0.25rem;
 }
-
-.conversation-selected {
+.conversation-item.selected, .conversation-item:hover {
     background-color: var(--color-bg-tertiary);
 }
-
-
-.profile-wrapper {
-    max-width: 1.75rem;
+.conversation-item .profile-wrapper {
+    width: var(--size-profile);
+    aspect-ratio: 1 / 1;
 
     position: relative;
 }
 .profile-wrapper img {
-    border-radius: 5rem;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
-
 .active-indicator {
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.75rem;
+    aspect-ratio: 1 / 1;
 
     position: absolute;
     bottom: 0;
@@ -38,12 +39,6 @@
 .offline {
     background-color: gray;
 }
-
 .conversation-item__title {
-    font-size: 0.7rem;
-}
-
-.username {
-    color: var(--color-txt-secondary);
-    font-size: 0.6rem;
+    font-size: medium;
 }

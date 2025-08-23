@@ -1,7 +1,7 @@
 import Message from "./Message"
 
 export default {
-    title: 'Message Test',
+    title: 'Component - Message',
     component: Message,
 }
 
@@ -19,7 +19,7 @@ const user2 = {
 
 const message = {
     type: 'TEXT',
-    content: 'Hello there',
+    content: 'Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there ',
     sender: loginUser
 }
 
@@ -31,7 +31,7 @@ const message2 = {
 
 const message3 = {
     type: 'TEXT',
-    content: 'Hello there',
+    content: 'Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there Hello there ',
     sender: user2
 }
 

@@ -25,7 +25,9 @@ const Message = ({message, isSender}) => {
       { 
         isSender 
           ? <div className='message message--self'> 
-                <EllipsisVertical className='icon' size={16}/>
+                <div className="icon-container icon message-options">
+                  <EllipsisVertical size={16}/>
+                </div>
                 <MessageContent type={message?.type} content={message?.content}/>
             </div>
           : <div className='message message--other'> 
@@ -44,12 +46,5 @@ const Message = ({message, isSender}) => {
   )
 }
 
-/* Message.propTypes = {
-  type: PropTypes.oneOf(['IMAGE', 'TEXT']),
-  // label: PropTypes.oneOf(['SELF', 'OTHER']),
-
-  type: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
-} */
 
 export default Message;
