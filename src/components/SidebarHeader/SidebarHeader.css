@@ -1,0 +1,11 @@
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.global .close {
+    display: none;
+}
+.chats .close-search-user {
+    
+}

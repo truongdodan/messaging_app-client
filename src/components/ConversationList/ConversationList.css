@@ -2,17 +2,19 @@
 .conversation-list {
     height: 100%;
 }
-.conversation-list__header {
+/* .conversation-list__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     margin-bottom: 1.25rem;
-}
+} */
 .conversation-list__body {
     display: flex;
     flex-direction: column;
-    row-gap: 0.75rem;
+    row-gap: 0.5rem;
+
+    margin-top: 0.5rem;
 }
 .icon-container.new-conversation {
     /* width: 2.5rem; */
@@ -21,7 +23,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
+    cursor: pointer;
 }
 
 /* Responsive */

@@ -19,6 +19,8 @@
 
 /* form */
 .new-group__form {
+    height: 100%;
+
     display: flex;
     flex-direction: column;
     row-gap: 0.5rem;
@@ -41,7 +43,7 @@
 .new-group__profile-preview {
     align-self: center;
     
-    width: 50%;
+    width: min(50%, 15rem);
     aspect-ratio: 1 / 1;
 
     display: flex;

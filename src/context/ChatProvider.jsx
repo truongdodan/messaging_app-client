@@ -1,14 +1,20 @@
 import { createContext, useState } from "react";
+import {useSocket} from "../context/SocketProvider"
 
 const ChatContext = createContext({});
 
 // all the messages in a conversation
 export const ChatProvider = ({children}) => {
-    const [chat, setChat] = useState(null);
-    const [chatLoading, setChatLoading] = useState(true);
+    const [chatList, setChatList] = useState(null);
+    const [currentChat, setCurrentChat] = useState(null);
 
     return (
-        <ChatContext value={{chat, setChat, setChatLoading}}>
+        <ChatContext value={{
+            currentChat,
+            setCurrentChat,
+            chatList,      
+            setChatList,   
+        }}>
             {children}
         </ChatContext>
     );

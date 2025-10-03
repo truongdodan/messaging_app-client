@@ -6,6 +6,7 @@
 
     overflow: hidden;
     font-size: 1.2rem;
+    background-color: var(--color-bg-secondary);
 }
 
 /* header */
@@ -22,6 +23,10 @@
 
     background-color: white;
     border-radius: 50%;
+    overflow: hidden;
+}
+.global .go-back {
+    display: none;
 }
 
 /* body */
@@ -35,7 +40,7 @@
     flex: 1;
 
     overflow: auto;
-    padding: 0.5rem 0;
+    padding: 0.5rem; /* right padding for space */
 }
 .conversation__messages .time {
     justify-self: center;
@@ -53,16 +58,17 @@
     margin-top: 0.75rem;
 }
 .conversation__form .input {
-    height: 2rem;
+    /* height: 2rem; */
+    max-height: 7rem;
     flex: 1;
 
     display: flex;
     align-items: center;
 
     background-color: var(--color-bg-tertiary);
-    border-radius: 2rem;
+    border-radius: 1rem;
     padding: 0.25rem 1rem;
-    font-size: 100%;
+    font-size: 1rem;
     resize: none;
 }
 .conversation__form .input::-webkit-scrollbar {
@@ -75,7 +81,12 @@
 }
 
 /* Responsive */
-@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ }
+@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ 
+    /* only show one page at a time */
+    .conversation--open {
+
+    }
+}
 @media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
 @media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
 @media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ 

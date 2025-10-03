@@ -2,14 +2,13 @@ import React from 'react'
 import './EditProfile.css'
 import { ArrowLeftIcon, Camera, Pen } from 'lucide-react';
 import Button from '../Button/Button'
+import GoBackBtn from '../GoBackBtn/GoBackBtn';
 
 const EditProfile = () => {
   return (
     <div className="edit-profile">
       <div className="edit-profile__header">
-        <div className="icon-container go-back">
-            <ArrowLeftIcon />
-        </div>
+        <GoBackBtn />
         <div className="title edit-profile__title sidebar-title">Edit Profile</div>
       </div>
       <hr />

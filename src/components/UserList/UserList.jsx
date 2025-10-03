@@ -1,36 +1,22 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './UserList.css'
 import { X } from 'lucide-react'
+import axiosInstance from '../../service/axios'
+import useAuth from '../../hook/useAuth'
+import SidebarHeader from '../SidebarHeader/SidebarHeader'
+import { useNavigate } from 'react-router-dom'
 
-const user = {
-    username: "dantRuongdo", 
-    firstname: "Truong", 
-    lastname: "Do Dan",
-    isActive: true
-}
+const User = ({user, onClick}) => {
+    const navigate = useNavigate();
 
-const user2 = {
-    username: "thangTa", 
-    firstname: "Thang", 
-    lastname: "Tadanh",
-    isActive: true
-}
+    const userProfileNavigate = () => {
+        navigate(`/profile/${user.id}`);
+    }
 
-const user3 = {
-    username: "namhoaido", 
-    firstname: "nam", 
-    lastname: "Do Hoai",
-    isActive: false
-}
-
-const User = ({user}) => {
     return (
-        <div className='user-item'>
+        <div className='user-item' onClick={onClick ? onClick : userProfileNavigate}>
             <div className="profile-wrapper">
-            {user?.profileUrl
-            ? <img src={conversation.profileUrl} alt="nahhh" />
-            : <img src="/user.png" alt="nahhh2" />
-            }
+            <img src={user?.profileUrl ? user.profileUrl : "/user.png"} alt="" />
             <div className={user?.isActive ? 'active-indicator online' : 'active-indicator offline'}></div>
             </div>
             <div className='user-item__title'>
@@ -43,22 +29,77 @@ const User = ({user}) => {
 
 export {User};
 
-const UserList = () => {
+const UserList = ({onCloseIconClick}) => {
+    const {auth} = useAuth();
+    const [users, setUsers] = useState([]);
+    const [searchedValue, setSearchedValue] = useState("");
+    const timeoutRef = useRef(null); // store timeout ref
+
+    // Get all users
+    useEffect(() => {
+        if (!auth?.accessToken) return;
+        
+        axiosInstance.get("/users")
+            .then(res => {
+                setUsers(res.data);
+            })
+            .catch(err => {
+                console.error(err);
+            })
+    }, [auth?.accessToken]);
+
+    const searchUsers = (search) => {
+        if (!search.trim()) { // if search is empty get all
+            axiosInstance.get("/users")
+            .then(res => {
+                setUsers(res.data);
+            })
+            .catch(err => {
+                console.error(err);
+            })
+        } else {
+            axiosInstance.get(`/users?search_query=${search}`)
+            .then(res => {
+                setUsers(res.data);
+            })
+            .catch(err => {
+                console.error(err);
+            })
+        }
+    }
+
+    const handleOnchange = (e) => {
+        const newSearchedValue = e.target.value;
+        setSearchedValue(newSearchedValue);
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            searchUsers(newSearchedValue);
+        }, 750)
+
+    };
+
   return (
     <div className='search-user'>
-        <header className='search-user__header'>
-            <div className="sidebar-title">Search Users</div>
-            <div className="icon-container close-search-user icon">
-                <X />
-            </div>
-        </header>
+        <SidebarHeader 
+        title={"Search User"} 
+        closable={true}
+        onCloseIconClick={onCloseIconClick} 
+        />
         <form className='form--search-user'>
-            <input type="text" id='searchUser' name='searchUser' className='input'/>
+            <input 
+            type="text" 
+            id='searchUser' 
+            name='searchUser' 
+            className='input' 
+            value={searchedValue}
+            onChange={handleOnchange}/>
         </form>
         <div className="user-list">
-            <User user={user}/>
-            <User user={user2}/>
-            <User user={user3}/>
+            {users && users.map(user => (user?.id !== auth?.user?.id) && <User key={user?.id} user={user} />)}
         </div>
     </div>
   )

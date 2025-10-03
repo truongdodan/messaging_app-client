@@ -68,17 +68,17 @@ a {
 
 @media (prefers-color-scheme: light) {   /* light THEME */
     :root {
-      --color-theme: pink;
-      --color-bg: pink;
-      --color-bg-secondary: pink;
-      --color-bg-tertiary: pink;
-      --color-txt: pink;
-      --color-txt-secondary: pink;
-      --color-button-bg: pink;
-      --color-button-txt: pink;
-      --color-icon: pink;
-      --color-icon-bg: pink;
-      --color-border: pink;
+      --color-theme: black;
+        --color-bg: #1c1e21;
+        --color-bg-secondary: #242526;
+        --color-bg-tertiary: #3a3b3c;
+        --color-txt: #e6f6ff;
+        --color-txt-secondary: #bcc0c4;
+        --color-button-bg: #f1f5f9;
+        --color-button-txt: black;
+        --color-icon: white;
+        --color-icon-bg: #3e4042;
+        --color-border: #3e4042;
     }
 }
 
@@ -104,7 +104,22 @@ main {
 }
 
 ::-webkit-scrollbar {
-    
+  width: 10px;              /* thickness */
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg); /* scrollbar track matches main background */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-bg-tertiary); /* thumb uses tertiary color */
+  border-radius: 6px;
+  border: 2px solid var(--color-bg); /* gives spacing illusion */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-bg-secondary); /* hover: middle layer */
 }
 
 hr {

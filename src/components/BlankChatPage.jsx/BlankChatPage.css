@@ -1,0 +1,17 @@
+.blank-chat-page {
+    font-size: 3.5rem;
+    font-weight: 550;
+}
+
+@media (min-width:320px)  { 
+    /* only show one page at a time in mobile size */
+    .blank-chat-page {
+        display: none;
+    }
+}
+
+@media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
+    .blank-chat-page {
+        display: block;
+    }
+}

@@ -5,7 +5,7 @@
     align-items: center;
 
     color: var(--color-txt);
-    margin: 0.25rem 0;
+    margin-bottom: 0.5rem;
 }
 
 /* Message type style */
@@ -43,6 +43,9 @@
     align-items: end;
     gap: 0.25rem 0.75rem;
 }
+.conversation--direct .message__profile {
+    display: none;
+}
 .message__profile {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
@@ -72,6 +75,9 @@
 }
 .message__content {
     grid-row: 2 / 3;
+
+    border-radius: 1rem;
+    background-color: var(--color-bg-tertiary);
 }
 
 /* hid username when in direct conversation */
@@ -82,4 +88,6 @@
 /* icon */
 .message-options {
     flex-shrink: 0;
+    color: var(--color-bg-tertiary);
+    margin: 0 0.5rem;
 }

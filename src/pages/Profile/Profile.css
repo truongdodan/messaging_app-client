@@ -48,6 +48,13 @@
     .profile__change-password-btn {
         display: none;
     }
+    .profile .go-back {
+        display: block;
+    }
+    .aside--header {
+        display: flex;
+        align-items: center;
+    }
 
     /* form */
     .edit-profile__inputs {

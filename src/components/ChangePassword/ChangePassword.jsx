@@ -2,14 +2,13 @@ import React from 'react'
 import './ChangePassword.css'
 import { ArrowLeftIcon, Pen } from 'lucide-react'
 import Button from '../Button/Button'
+import GoBackBtn from '../GoBackBtn/GoBackBtn'
 
 const ChangePassword = () => {
   return (
     <div className="change-password">
       <div className="change-password__header">
-        <div className="icon-container go-back">
-            <ArrowLeftIcon />
-        </div>
+        <GoBackBtn />
         <div className="title change-password__title sidebar-title">Change Password</div>
       </div>
       <form className="change-password__form">

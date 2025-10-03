@@ -1,19 +1,32 @@
 .groups {
     height: 100%;
-}
-.groups .conversation-list {
-    /* display: none; */
-}
-.groups .conversation {
-    display: none;
+
+    position: relative;
 }
 
 /* Responsive */
-@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ }
+@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ 
+    /* only show chat in conversation route */
+    .groups .conversation {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .new-group--open  .conversation-list{
+        display: none;
+    }
+}
 @media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
 @media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
 @media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
     .groups .conversation {
+        display: block;
+
+        position: static;   
+    }
+
+    .new-group--open  .conversation-list{
         display: block;
     }
 }

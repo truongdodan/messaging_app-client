@@ -1,7 +1,9 @@
 import React from 'react'
 import './Profile.css'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useParams } from 'react-router-dom'
 import { Sidebar } from 'lucide-react'
+import useAuth from '../../hook/useAuth'
+import GoBackBtn from '../../components/GoBackBtn/GoBackBtn'
 
 const Tab = () => {
   return (
@@ -13,17 +15,27 @@ const Tab = () => {
 
 const Profile = () => {
   const location = useLocation();
+  const {userId} = useParams();
 
   return (
     <div className='profile'>
-        <aside>
+      {
+        !userId 
+        ?  <aside>
             <div className='sidebar-title'>Manage Profile</div>
             <div className="profile__tabs">
               <Link to={"/profile"} className={location.pathname === '/profile' && 'selected'}>Profile</Link>
               <Link to={"/profile/edit"} className={location.pathname === '/profile/edit' && 'selected'}>Edit Profile</Link>
               <Link to={"/profile/changepassword"} className={location.pathname === '/profile/changepassword' && 'selected'}>Change Password</Link>
             </div>
-        </aside>
+          </aside>
+        : <aside>
+            <div className="aside--header">
+              <GoBackBtn />
+              <div className='sidebar-title'>User Profile</div> 
+            </div>
+          </aside>
+      }
         <Outlet />
     </div>
   )

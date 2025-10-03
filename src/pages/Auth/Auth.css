@@ -20,7 +20,7 @@
     bottom: 1.5rem;
 }
 .auth__title {
-    font-size: var(--size-txt-big);
+    font-size: 2rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
 }
@@ -42,6 +42,8 @@
     row-gap: 0.25rem;
 }
 .auth__input {
+    flex: 1;
+
     display: flex;
     flex-direction: column;
     row-gap: 0.15rem;
@@ -66,7 +68,7 @@
     color: var(--color-button-txt);
 }
 .input {
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem;
 
     border-radius: var(--size-border-radius);
     background-color: var(--color-bg-secondary);
@@ -74,6 +76,7 @@
     border: none;
     outline: none;
 }
+
 /* logo */
 .auth-wrapper .img-wrapper img {
     width: 70%;
@@ -85,6 +88,13 @@
     left: 5rem;
 
     display: none;
+}
+
+/* Error */
+.error {
+    color: red;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 

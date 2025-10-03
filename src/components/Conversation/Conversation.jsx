@@ -1,24 +1,41 @@
 import React from 'react'
 import './Conversation.css'
+import { useLocation, useNavigate } from 'react-router-dom';
+import useAuth from '../../hook/useAuth';
 
 // type = 'DIRECT' display user fullname and username
 // type = 'GROUP' display conversation title
 const Conversation = ({conversation}) => {
-  const isSelected = false;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const {auth} = useAuth();
+  const isChats = location.pathname.startsWith("/chats");
+  const expectedPath = isChats
+    ? `/chats/${conversation?.id}`
+    : `/groups/${conversation?.id}`;
+  const isSelected = location.pathname === expectedPath;
+  const recipient = conversation?.participants?.find  (par => par?.user?.id !== auth?.user?.id);
+
+  const openConversation = () => {
+    if (isChats) {
+      navigate(`/chats/${conversation?.id}`);
+    } else {
+      navigate(`/groups/${conversation?.id}`);
+    }
+  }
 
   return (
-    <div className={isSelected ? 'conversation-item selected' : 'conversation-item'}>
+    <div className={isSelected ? 'conversation-item selected' : 'conversation-item'} onClick={openConversation}>
         <div className="profile-wrapper">
-          {conversation?.profileUrl 
-          ? <img src={conversation.profileUrl} alt="nahhh" />
-          : <img src="https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.qNfoguQF-UXY1F1MdXDXrAHaHY%3Fr%3D0%26pid%3DApi&sp=1754728267T4c820c6395da181f8d757c444fd7934b934a0a309ad5066b61654c18be5ea922" alt="nahhh2" />
-          }
+          <img src={conversation?.profileUrl ? conversation?.profileUrl : "/user.png"} alt="nahhh" />
           <div className={conversation?.isActive ? 'active-indicator online' : 'active-indicator offline'}></div>
         </div>
-        {conversation?.type === "DIRECT" && <div className='conversation-item__title'>
-                                              <p className='fullname'>{conversation.participant.lastname + ' ' + conversation.participant.firstname}</p>
-                                              <p className='username'>{'@' + conversation.participant.username}</p>
-                                            </div>
+        {conversation?.type === "DIRECT" && conversation?.participants?.length > 0 && 
+          <div className='conversation-item__title'>
+            <p className='fullname'>{recipient?.user?.lastname + ' ' + recipient?.user?.firstname}</p>
+            <p className='username'>{'@' + recipient?.user?.username}</p>
+          </div>
         }
         {conversation?.type === "GROUP" && <div className='conversation-item__title'>
                                             {conversation.title}
