@@ -7,36 +7,15 @@ import axiosInstance from '../../service/axios'
 // handle content type when rendering
 const MessageContent = ({type, content}) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [signedUrl, setSignedUrl] = useState("");
   const [fileDetails, setFileDetails] = useState({});
   let message;
 
   useEffect(() => {
+    // if message is a file/image, convert it from JSON format
     if (type === "FILE") {
       const details = JSON.parse(content)
       setFileDetails(details);
-      setIsLoading(true);
-
-      // use this if have separate route for downloading file
-      /* // fetch url for image
-      if (details?.mimetype?.startsWith("image/")) {
-        axiosInstance.get(`/messages/file/sign-url?path=${fileDetails.path}`)
-          .then(res => {
-            setSignedUrl(res?.data?.signedUrl);
-          })
-          .catch(err => console.error("Failed getting image url: ", err))
-          .finally(() => setIsLoading(false));
-      } else {
-        setIsLoading(false);
-      } */
-
-      axiosInstance.get(`/messages/file/sign-url?path=${details.path}`)
-          .then(res => {
-            setSignedUrl(res?.data?.signedUrl);
-          })
-          .catch(err => console.error("Failed getting image url: ", err))
-          .finally(() => setIsLoading(false));
-
+      setIsLoading(false); 
     }
   }, [type, content]);
 
@@ -48,15 +27,15 @@ const MessageContent = ({type, content}) => {
       message = (
         <div className='message--image image-wrapper'>
             {
-              signedUrl
-              ? <img src={signedUrl || '#'} alt={fileDetails?.filename}/>
+              fileDetails?.path
+              ? <img src={fileDetails?.path || '#'} alt={fileDetails?.filename}/>
               : <div style={{color: "red"}}>Fail to load image</div>
             }
         </div>
       );
     } else {
       message = <div className='message--file file-wrapper message--text'>
-                  <a href={signedUrl} target="_blank" rel="noopener noreferrer">
+                  <a href={fileDetails?.path} target="_blank" rel="noopener noreferrer">
                     {fileDetails?.filename}
                   </a>
                 </div>;

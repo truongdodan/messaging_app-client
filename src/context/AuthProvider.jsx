@@ -1,6 +1,6 @@
 import { createContext } from "react";
 import { useEffect, useState, useRef } from "react";
-import axiosInstance, { interceptorsSetup } from "../service/axios";
+import axiosInstance, { getFileUrl, interceptorsSetup } from "../service/axios";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const AuthContext = createContext({});
@@ -10,29 +10,77 @@ export const AuthProvider = ({children}) => {
     const [authLoading, setAuthLoading] = useState(true);
     const authRef = useRef(null);
 
-    const setAuth = (auth) => {
-        authRef.current = auth;
-        setAuthState(auth);
+    const setAuth = async (auth) => {
+        if (!auth) {
+            authRef.current = null;
+            setAuthState(null);
+            return;
+        }
+
+        const isValidUrl = (value) => {
+            try {
+                const url = new URL(value);
+
+                return url.protocol === "https:" || url.protocol === "http:";
+            } catch {
+                return false;
+            }
+        }
+
+        let profileUrl;
+        let coverUrl;
+
+        try {
+            // check if profile url need to be fetch
+            if (auth?.user?.profileUrl && !isValidUrl(auth?.user?.profileUrl)) {
+                profileUrl = await getFileUrl(auth.user.profileUrl);
+            }
+
+            // check if cover url need to be fetch
+            if (auth?.user?.coverUrl && !isValidUrl(auth?.user?.coverUrl)) {
+                coverUrl = await getFileUrl(auth.user.coverUrl);
+            }
+
+            const authWithUrl = {
+                ...auth,
+                user: {
+                    ...auth.user,
+                    ...(profileUrl && {profileUrl: profileUrl}),
+                    ...(coverUrl && {coverUrl: coverUrl}),
+                }
+            };
+
+            authRef.current = authWithUrl;
+            setAuthState(authWithUrl);
+            return;
+        } catch (error) {
+            console.error("Error fetching profile or cover url: ", error);
+            authRef.current = auth
+            setAuthState(auth);
+        }
+
     }
     const getAuth = () => authRef.current;
 
     // Refresh access token if Refresh token available everytimes user open app
     useEffect(() => {
-        axiosInstance.get("/refresh")
-        .then(res => {
-            setAuth({
-                accessToken: res?.data?.accessToken,
-                user: res?.data?.user,
-            });
-        })
-        .catch(err => {
-          console.error(err);
-        })
-        .finally(() => {
-            setAuthLoading(false);
-        })
+        const initAuth = async () => {
+            try {
+                const res = await axiosInstance.get("/refresh");
+            
+                await setAuth({
+                    accessToken: res?.data?.accessToken,
+                    user: res?.data?.user,
+                });
+            } catch (error) {
+                console.error("Refresh token error:", err);
+                // User stays logged out
+            } finally {
+                setAuthLoading(false)
+            }
+        }
 
-        // Setup interceptors
+        initAuth();
         interceptorsSetup(getAuth, setAuth);
     }, []);
 

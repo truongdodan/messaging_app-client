@@ -9,7 +9,6 @@ import useConversation from '../../hook/useConversation'
 
 const Profile = () => {
     const {auth} = useAuth();
-    const {directConversationItems, conversationItemsLoading} = useConversation();
     const navigate = useNavigate();
     const {userId} = useParams();
     const [currentDisplayUser, setCurrentDisplayUser] = useState();
@@ -19,6 +18,7 @@ const Profile = () => {
     useEffect(() => {
         if (!userId) {  // if in the login user profile
             setCurrentDisplayUser(auth.user);
+            setCurrentDisplayUserLoading(false);
         } else {
             axiosInstance.get(`/users/${userId}`)
             .then(res => {
@@ -27,15 +27,12 @@ const Profile = () => {
             .catch(err => {
                 console.error(err);
             })
+            .finally(() => {
+                setCurrentDisplayUserLoading(false);
+            })
         }
-    }, []);
-
-    // set loading after set current display user
-    useEffect(() => {
-        if (currentDisplayUser) {
-            setCurrentDisplayUserLoading(false);
-        }
-    }, [currentDisplayUser]);
+        
+    }, [userId, auth?.user]);
 
     if (currentDisplayUserLoading) return <div>Loading user profile...</div>
 
@@ -49,7 +46,7 @@ const Profile = () => {
                 </div>
             </div>
             <div className="profile__profile-picture">
-                <img src={currentDisplayUser?.coverUrl ? currentDisplayUser?.profileUrl : "/user.png"} alt="profile picture" />
+                <img src={currentDisplayUser?.profileUrl ? currentDisplayUser?.profileUrl : "/user.png"} alt="profile picture" />
                 <div className="active-indicator online"></div>
             </div>
         </div>

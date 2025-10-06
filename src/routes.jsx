@@ -22,11 +22,11 @@ const router = createBrowserRouter([
         path: '/',
         element: <Layout />,
         children: [
-            {index: true, element: <Navigate to={'/chats'}/>},                           
-            {path: '/global', element: <Global />},
+            {index: true, element: <Navigate to={'/global'}/>},                           
             {
                 element: <RequiredAuth />,
                 children: [
+                    {path: '/global', element: <Global />},
                     {
                         path: '/chats', 
                         element: <Chats />,

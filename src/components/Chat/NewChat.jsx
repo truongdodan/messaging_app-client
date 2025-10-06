@@ -18,9 +18,9 @@ const NewChat = () => {
 
     const [recipient, setRecipient] = useState(null);
     const [recipientLoading, setRecipientLoading] = useState(true);
-    const pendingMessageRef = useRef(null);
     const [isCreatingConversation, setIsCreatingConversation] = useState(false);
     const [messageInput, setMessageInput] = useState("");
+    const pendingMessageRef = useRef(null);
     const sendMessageBtnRef = useRef(); 
 
     const chatOpen = location.pathname !== "/chats" || location.path !== "/groups";
@@ -31,7 +31,8 @@ const NewChat = () => {
 
         // check if login user already have a chat with this user
         const existConversation = conversationItems?.find(conversationItem => 
-            conversationItem?.participants?.some(participant => participant?.user?.id ===userId)
+            conversationItem?.type === "DIRECT" && // conversation have to be DIRECT
+            conversationItem?.participants?.some(participant => participant?.user?.id ===userId) // conversation have the choosen user
         )
 
         if (existConversation) {    // if exist, navigate to chat page to continue chat
@@ -55,11 +56,12 @@ const NewChat = () => {
 
     // listen when new converation is created to redirect to /chats page
     useEffect(() => {
-        if (!isCreatingConversation && !conversationItems && !userId) return;
+        if (isCreatingConversation && !conversationItems && !userId) return;
 
+        console.log("wha?");
         // get newly created conver
         const newConversation = conversationItems?.find(
-            conv => conv?.participants?.some(par => par?.user?.id === userId) && newConversation?.type === "DIRECT"
+            conv => conv?.participants?.some(par => par?.user?.id === userId) && conv?.type === "DIRECT"
         );
         
         if (newConversation && pendingMessageRef.current) {
@@ -86,7 +88,7 @@ const NewChat = () => {
         createConversation({
             type: "DIRECT",
             allMemberIds: [recipient?.id],
-        })
+        }, () => {})
         
         setMessageInput("");
     }, [messageInput, recipient, isCreatingConversation, createConversation]);

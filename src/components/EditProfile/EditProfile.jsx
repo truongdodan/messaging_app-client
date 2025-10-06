@@ -1,10 +1,111 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './EditProfile.css'
 import { ArrowLeftIcon, Camera, Pen } from 'lucide-react';
 import Button from '../Button/Button'
 import GoBackBtn from '../GoBackBtn/GoBackBtn';
+import axiosInstance, { uploadFile } from '../../service/axios';
+import useAuth from '../../hook/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const EditProfile = () => {
+  const navigate = useNavigate();
+
+  const {auth, setAuth} = useAuth();
+
+  const [newProfile, setNewProfile] = useState({
+    username: auth?.user?.username,
+    firstname: auth?.user?.firstname,
+    lastname: auth?.user?.lastname,
+    bio: auth?.user?.bio,
+    profileUrl: auth?.user?.profileUrl,
+  });
+  const [previewImage, setPreviewImage] = useState();
+
+  const fileRef = useRef();
+
+  const handleChange = (e) => {
+    setNewProfile({
+      ...newProfile,
+      [e.target.name]: e.target.value,
+    });
+  }
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // validate file type
+    if (!file.type.startsWith('image/')) {
+      // inform wrong file type
+      console.error("Only accept image file");
+      return;
+    }
+
+    // validate file size (max: 5mb)
+    if (file.size > 5 * 1024 * 1024) {
+      console.error("Image should be less than 5MB");
+      return;
+    }
+
+    // create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+    }
+    reader.readAsDataURL(file);
+
+  }
+
+  const changeImageClick = (e) => {
+    e.preventDefault();
+    fileRef?.current?.click();
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!newProfile && !fileRef?.current?.files[0]) return;
+
+    let updatedProfle = {...newProfile};
+
+    if (fileRef?.current?.files[0]) {
+      try {
+        const file = fileRef.current.files[0];
+
+        const imageName = await uploadFile(file);
+        updatedProfle.profileUrl = imageName;
+
+      } catch (error) {
+        console.error("Error when uploading file: ", error);
+      }
+    }
+
+    try {
+      const res = await axiosInstance.patch('/users', updatedProfle);  
+      let newUserData = res.data;
+
+      const newAuth = {
+        ...auth,
+        user: {
+          ...auth.user,
+          profileUrl: newUserData?.profileUrl,
+          username: newUserData?.username,
+          firstname: newUserData?.firstname,
+          lastname: newUserData?.lastname,
+          bio: newUserData?.bio,
+        }
+      }
+
+      setAuth(newAuth);
+      navigate('/profile');
+
+    } catch (error) {
+      console.error("Error update profile: ", error);
+    }
+
+  }
+
   return (
     <div className="edit-profile">
       <div className="edit-profile__header">
@@ -12,14 +113,15 @@ const EditProfile = () => {
         <div className="title edit-profile__title sidebar-title">Edit Profile</div>
       </div>
       <hr />
-      <form className="edit-profile__form">
+      <form className="edit-profile__form" onSubmit={handleSubmit}>
         <div className="edit-profile__profile">
           <div className="edit-profile_subtitle">
             <div>Profile Picture</div>
-            <Button icon={Pen} text={'Change'}/>
+            <Button icon={Pen} text={'Change'} onClick={changeImageClick}/>
+            <input type="file" ref={fileRef} style={{display: "none"}} onChange={handleImageChange}/>
           </div>
           <div className="edit-profile__profile-preview">
-            <img src="https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.PjVYkxU9_jpaHMtD1ZU2NwHaHW%3Fr%3D0%26cb%3Dthfc1%26pid%3DApi&sp=1754625227T193693d80ff26d9fdc4d10c117612cece04b4211fed3b2f987549d03a2e1f619" alt="Profile image" />
+            <img src={previewImage ? previewImage : (auth?.user?.profileUrl || '/user.png')} alt="Profile image" />
             {/* <Camera /> */}
           </div>
         </div>
@@ -28,20 +130,48 @@ const EditProfile = () => {
           <div className="edit-profile__left">
             <div className="edit-profile__firstname">
               <label htmlFor="firstname">First Name:</label>
-              <input type="text" name='firstname' id='firstname' className='input'/>
+              <input 
+                type="text" 
+                name='firstname' 
+                id='firstname' 
+                value={newProfile?.firstname}
+                className='input' 
+                onChange={handleChange}
+              />
             </div>
             <div className="edit-profile__lastname">
               <label htmlFor="lastname">Lastname:</label>
-              <input type="text" name='lastname' id='lastname' className='input'/>
+              <input 
+                type="text" 
+                name='lastname' 
+                id='lastname' 
+                value={newProfile?.lastname}
+                className='input' 
+                onChange={handleChange}
+              />
             </div>
             <div className="edit-profile__username">
               <label htmlFor="username">Username:</label>
-              <input type="text" name='username' id='username' className='input'/>
+              <input 
+                type="text" 
+                name='username' 
+                id='username' 
+                value={newProfile?.username}
+                className='input' 
+                onChange={handleChange}
+              />
             </div>            
           </div>
           <div className="edit-profile__bio edit-profile__right">
             <label htmlFor="bio">Bio:</label>
-            <textarea type="text" name='bio' id='bio' className='input'/>
+            <textarea 
+              type="text" 
+              name='bio' 
+              id='bio' 
+              value={newProfile?.bio}
+              className='input' 
+              onChange={handleChange}
+            />
           </div>
         </div>
         <Button text={'Save'}/>

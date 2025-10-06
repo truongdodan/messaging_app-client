@@ -6,14 +6,16 @@ import { User } from '../UserList/UserList'
 import GoBackBtn from '../GoBackBtn/GoBackBtn'
 import axiosInstance from '../../service/axios'
 import useConversation from '../../hook/useConversation'
+import { useNavigate } from 'react-router-dom'
 
 const NewGroup = () => {
   const {createConversation, conversationItems} = useConversation();
+  const navigate = useNavigate();
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const [newConversation, setNewConversation] = useState(null);
 
   const [previewImage, setPreviewImage] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
   const [groupName, setGroupName] = useState("");
   const [groupMemberList, setGroupMemberList] = useState([]); 
   const fileInputRef = useRef();
@@ -47,8 +49,6 @@ const NewGroup = () => {
       setPreviewImage(reader.result);
     }
     reader.readAsDataURL(file);
-
-    setImageFile(file);
   }
 
   const handleChangeClick = (e) => {
@@ -67,30 +67,41 @@ const NewGroup = () => {
       return;
     }
 
+    // no member check
     if (membersIds?.length <= 0) {
       setError("No friend?");
       return;
     }
 
-    // upload group image to cloud
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
+            // upload group image to cloud
+            const formData = new FormData();
+            formData.append("file", file);
+            
             const res = await axiosInstance.post('/messages/file', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+              headers: { 'Content-Type': 'multipart/form-data' },
             });
             const { path } = res.data;
         
             // create new group/conversation
             setIsCreatingConversation(true);
 
+            const handleNewConversation = (res) => {
+              if (res.error) {
+                console.error("Fail to create conversation: ", res.error);
+              }
+
+              console.log("New group conver created");
+              setNewConversation(res);
+              setIsCreatingConversation(false);
+            }
+            
             createConversation({
                 type: "GROUP",
                 title: groupName,
-                imageUrl: path,
+                profileUrl: path,
                 allMemberIds: membersIds,
-            })
+            }, handleNewConversation);
 
     } catch (error) {
         console.error('File upload failed:', error);
@@ -100,10 +111,11 @@ const NewGroup = () => {
 
   // listen for new group/conversation created
   useEffect(() => {
-    if (isCreatingConversation && !conversationItems) return;
+    if (!isCreatingConversation && !newConversation?.id) return;
 
-    
-  }, [conversationItems, isCreatingConversation]);
+    navigate(`/groups/${newConversation?.id}`);
+
+  }, [conversationItems, isCreatingConversation, newConversation?.id]);
 
   const searchUsers = (search) => {
         if (!search.trim()) { // if search is empty get all

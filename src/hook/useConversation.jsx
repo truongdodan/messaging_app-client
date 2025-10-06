@@ -31,9 +31,9 @@ const useConversation = () => {
     }, [socket, isConnected]);
 
     const createConversation = useCallback(
-        ({title="", type='DIRECT', profileUrl="", allMemberIds}={}) => {
+        ({title="", type='DIRECT', profileUrl="", allMemberIds}={}, callback) => {
             if (socket) {
-            socket.createConversation({title, type, profileUrl, allMemberIds});
+            socket.createConversation({title, type, profileUrl, allMemberIds}, callback);
             }
         }
         ,[socket]

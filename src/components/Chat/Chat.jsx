@@ -9,13 +9,14 @@ import axiosInstance from '../../service/axios'
 import useAuth from '../../hook/useAuth'
 import useConversation from '../../hook/useConversation'
 
-const Chat = ({type}) => {
+const Chat = ({type, globalChatIndex}) => {
     const location = useLocation();
     const {conversationId} = useParams();
     const navigate = useNavigate();
 
     const {auth} = useAuth();
-    const {currentChat, currentChatLoading, sendMessage} = useChat(conversationId);
+    const {currentChat, currentChatLoading, sendMessage} = useChat(type === "GLOBAL" ? globalChatIndex : conversationId);
+    const {conversationItems, conversationItemsLoading} = useConversation();
     const [messageInput, setMessageInput] = useState("");
     const [loading, setLoading] = useState(true);
     const hasSendPendingMessageRef = useRef(false);
@@ -33,19 +34,29 @@ const Chat = ({type}) => {
         if (currentChatLoading || !currentChat) return;
 
             // set title and profile for header
+            if (!conversationItems && conversationItemsLoading && (currentChatLoading || !currentChat)) return;
+
+            // set title and profile for header
+            const currentItem = conversationItems?.find(
+                item => item?.id === conversationId
+            );
             if (type === "DIRECT") {
-                const otherParticipant = currentChat?.participants?.find(
+
+                const otherParticipant = currentItem?.participants?.find(
                     par => par?.user?.id !== auth?.user?.id
                 );
                 setConverTitle(otherParticipant?.user?.username || "Unknown User");
                 setConverProfile(otherParticipant?.user?.profileUrl || "/user.png");
-            } else {
+            } else if (type === "GROUP") {
+                setConverTitle(currentItem?.title);
+                setConverProfile(currentItem?.profileUrl);
+            } else if (type === "GLOBAL") {
                 setConverTitle(currentChat?.title);
                 setConverProfile(currentChat?.profileUrl);
             }
 
-            setLoading(false);  
-    }, [currentChatLoading, auth?.user?.id, type, currentChat]);
+            setLoading(false); 
+    }, [currentChatLoading, auth?.user?.id, type, currentChat, conversationItems, conversationItemsLoading]);
 
     // if there is pending message, send it
     useEffect(() => {
@@ -119,6 +130,7 @@ const Chat = ({type}) => {
     if (loading) return <div>Loading Chat...</div>; 
     if (!currentChat) return <div>Conversation not found</div> // problem
 
+
   return (
     /* Fill in the chat section with a blank page if user havent select any conversation */
     <div className={`conversation ${type === "DIRECT" ? 'conversation--direct' : 'conversation--group'} ${chatOpen ? 'conversation--open': ''}`}>
@@ -133,7 +145,7 @@ const Chat = ({type}) => {
             <hr />
             <div className="conversation__messages">
                 {
-                    currentChat
+                    (currentChat && currentChat?.messages?.length > 0)
                     ? <>
                         {
                             currentChat?.messages?.map(message => 

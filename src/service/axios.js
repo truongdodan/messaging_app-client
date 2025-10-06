@@ -61,5 +61,43 @@ export const logout = (setAuth) => {
         })
 }
 
+export const getFileUrl = async (fileName) => {
+    if (!fileName) {
+        console.error("File name required");
+        return;
+    }
+
+    if (typeof fileName !== 'string') {
+        console.error("File name have to be a String");
+        return;
+    }
+
+    const res = await axiosInstance.get(`/messages/file/sign-url?path=${fileName}`);
+
+    return res.data.signedUrl;
+}
+
+export const uploadFile = async (fileInput) => {
+    if (!fileInput) {
+        console.error("File required");
+        return;
+    }
+
+    if (!fileInput instanceof File) {
+        console.error("Not a input file");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput);
+    
+
+    const res = await axiosInstance.post(`/messages/file`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    return res?.data?.path;
+}
+
 export default axiosInstance;
 

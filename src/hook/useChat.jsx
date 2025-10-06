@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from "react"
 import ChatContext from "../context/ChatProvider";
 import { useSocket } from "../context/SocketProvider";
-import axiosInstance from "../service/axios";
+import axiosInstance, { getFileUrl } from "../service/axios";
 
 const useChat = (chatId) => {
     const {socket, isConnected} = useSocket();
@@ -17,7 +17,7 @@ const useChat = (chatId) => {
 
         if (!isConnected) return; // wait socket connection
 
-        // check if the current chat list contain this chat
+        /* // check if the current chat list contain this chat
         const existingChat = chatList?.find(chat => chat?.id === chatId);
 
         if(existingChat) {
@@ -25,6 +25,7 @@ const useChat = (chatId) => {
             setCurrentChatLoading(false);
         } else {    
             // fetch chat from API
+            // also get image in chat
             axiosInstance.get(`/conversations/${chatId}`)
                 .then(res => {
                     const chatData = res?.data;
@@ -45,8 +46,77 @@ const useChat = (chatId) => {
                     setCurrentChat(null);
                 })
                 .finally(() => setCurrentChatLoading(false));
+        } */
+
+        const getCurrentConversation = async () => {
+            // check if the current chat list contain this chat
+            const existingChat = chatList?.find(chat => chat?.id === chatId);
+
+            if(existingChat) {
+                setCurrentChat(existingChat);
+                setCurrentChatLoading(false);
+            } else {    
+                // fetch chat from API
+                // also get image in chat
+                /* axiosInstance.get(`/conversations/${chatId}`)
+                    .then(res => {
+                        const chatData = res?.data;
+
+                        setCurrentChat(chatData);
+
+                        // add chat to chat list
+                        setChatList(pre => {
+                            const exist = chatList?.some(chat => chat?.id === chatData?.id);
+
+                            if (exist) return pre;
+
+                            return [...(pre || []), chatData];
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Error when fetching conversation: ", err?.message);
+                        setCurrentChat(null);
+                    })
+                    .finally(() => setCurrentChatLoading(false)); */
+                try {
+                    const res = await axiosInstance.get(`/conversations/${chatId}`);
+                    const chat = res?.data;
+
+                    // get all the image in chat
+                    const chatWithImageUrl = await Promise.all(
+                        chat?.messages?.map(async (msg) => {
+                            if (msg?.type === "FILE") { // if message is a file or image => get url
+                                const msgDetails = JSON.parse(msg?.content);
+
+                                const url = await getFileUrl(msgDetails?.path);
+
+                                const msgWithUrl = JSON.stringify({
+                                    ...msgDetails,
+                                    path: url,
+                                });
+
+                                return {...msg, content: msgWithUrl};
+                            }
+
+                            return msg;
+                        })
+                    );
+
+                    // u may need double check if chat is repeated
+                    setCurrentChat({
+                        ...chat,
+                        messages: chatWithImageUrl,
+                    });
+                    
+                } catch (error) {
+                    console.error("Error when getting chat: ", error);
+                }
+
+                setCurrentChatLoading(false);
+            }
         }
 
+        getCurrentConversation();
             
     }, [chatId, isConnected, chatList, setCurrentChat, setChatList]);
 

@@ -48,9 +48,9 @@ class SocketService {
     }
 
     // emit method
-    createConversation({title="", type="DIRECT", profileUrl="", allMemberIds}={}) {
+    createConversation({title="", type="DIRECT", profileUrl="", allMemberIds}={}, callback) {
         if(this.socket) {
-            this.socket.emit('create_conversation', {title, type, profileUrl, allMemberIds});
+            this.socket.emit('create_conversation', {title, type, profileUrl, allMemberIds}, callback);
         }
     }
 

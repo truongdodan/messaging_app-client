@@ -3,7 +3,7 @@ import '../Auth.css'
 import Button from '../../../components/Button/Button'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import axiosInstance from '../../../service/axios'
+import axiosInstance, { getFileUrl } from '../../../service/axios'
 import useAuth from '../../../hook/useAuth'
 import { useEffect } from 'react'
 
@@ -29,21 +29,20 @@ const Login = () => {
         setError("");
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        axiosInstance.post("/login", account) 
-            .then(res => {
-                setAuth({
-                    accessToken: res.data.accessToken,
-                    user: res.data.user,
-                })
-                setIsLoading(false);
+        try {
+            const loginUser = await axiosInstance.post('/login', account);
+            setAuth({
+                accessToken: loginUser.data.accessToken,
+                user: loginUser.data.user,
             })
-            .catch(err => {
-                console.error(err);
-                setError(err.response.data.error.msg);
-            })
+        } catch (error) {
+            console.error("Error when trying to login: ", error);
+            setError(error.response.data.error.msg);
+        } finally {setIsLoading(false);}
+
     }
 
     useEffect(() => {

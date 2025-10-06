@@ -4,31 +4,29 @@ import UserList from '../../components/UserList/UserList'
 import Chat from '../../components/Chat/Chat'
 import { useLocation } from 'react-router-dom'
 import axiosInstance from '../../service/axios'
-import useChat from '../../hook/useChat'
+import { useState } from 'react'
 
 const Global = () => {
   const location = useLocation();
-  const {chats, setChats, setChatLoading} = useChat();
+  const [globalChatIndex, setGlobalChatIndex] = useState(null);
+
     useEffect(() => {
-        // if the GLOBAL conversation is not retrive yet, retrive it
-       if (chats?.find(chat => chat.type === "GLOBAL")) {
-        axiosInstance.get("/conversations?type=GLOBAL")
-            .then(res => {
-              setChats(pre => [
-                ...(pre || []),
-                ...res.data
-              ]);
-            })
-            .catch(err => {
-              console.error(err);
-            })
-       }
-    }, []);
+        if (globalChatIndex) return;
+
+        const getGlobalChat = async () => {
+          const globalChat = await axiosInstance.get("/global");
+
+          setGlobalChatIndex(globalChat.data.globalConversationId);
+        }
+
+        getGlobalChat();
+
+    }, [globalChatIndex]);
 
   return (
     <div className='global'>
       <UserList />
-      <Chat globalChatIndex={chats?.findIndex(chat => chat.type === "GLOBAL")}/>
+      <Chat globalChatIndex={globalChatIndex} type={"GLOBAL"}/>
     </div>
   )
 }
