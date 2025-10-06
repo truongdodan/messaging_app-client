@@ -47,6 +47,8 @@ export const interceptorsSetup = (getAuth, setAuth) => {
                     return Promise.reject(err);
                 }
             }
+
+            return Promise.reject(err);
         }
     );
 }

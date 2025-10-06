@@ -8,7 +8,7 @@ import useAuth from '../../../hook/useAuth'
 import { useEffect } from 'react'
 
 const Login = () => {
-    const {auth, setAuth} = useAuth();
+    const {setAuth} = useAuth();
     const [account, setAccount] = useState({
         email: "dodantruong333@gmail.com",
         password: "Strongp@ssword123",
@@ -34,24 +34,28 @@ const Login = () => {
 
         try {
             const loginUser = await axiosInstance.post('/login', account);
-            setAuth({
+            await setAuth({
                 accessToken: loginUser.data.accessToken,
                 user: loginUser.data.user,
             })
+
+            navigate(from, {replace: true});
         } catch (error) {
             console.error("Error when trying to login: ", error);
-            setError(error.response.data.error.msg);
+            const errorData = error.response?.data?.error;
+        
+            // Check if validation errors exist
+            if (errorData?.details && Array.isArray(errorData.details)) {
+                // Show first validation error
+                const firstError = errorData.details[0];
+                setError(firstError.msg || errorData.msg);
+            } else {
+                // Show generic error message
+                setError(errorData?.msg || 'Login failed');
+            }
         } finally {setIsLoading(false);}
 
     }
-
-    useEffect(() => {
-        if (isLoading === false && auth) {
-            navigate(from, {replace: true});
-        } /* else {
-            setError("There is error when trying to login");
-        } */
-    }, [isLoading]);
 
   return (
     <div className="auth-wrapper">
@@ -62,11 +66,11 @@ const Login = () => {
             <form className="auth__form form--login" onSubmit={handleSubmit}>
                 <div className="auth__input">
                     <label htmlFor="email">Email:</label>
-                    <input type="email" id='email' name='email' className='input' onChange={handleChange}/>
+                    <input type="email" id='email' name='email' className='input' onChange={handleChange} disabled={isLoading}/>
                 </div>
                 <div className="auth__input">
                     <label htmlFor="password">Password:</label>
-                    <input type="password" id='password' name='password' className='input'onChange={handleChange}/>
+                    <input type="password" id='password' name='password' className='input'onChange={handleChange} disabled={isLoading}/>
                 </div>
                 <div className="auth__navigate">
                     Don't have an account? <Link to={'/register'}>Sign up</Link>

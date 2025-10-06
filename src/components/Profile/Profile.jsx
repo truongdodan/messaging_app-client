@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './Profile.css'
 import Button from '../Button/Button'
 import { Camera } from 'lucide-react'
 import useAuth from '../../hook/useAuth'
 import { useNavigate, useParams } from 'react-router-dom'
-import axiosInstance from '../../service/axios'
+import axiosInstance, { uploadFile } from '../../service/axios'
 import useConversation from '../../hook/useConversation'
 
 const Profile = () => {
-    const {auth} = useAuth();
+    const {auth, setAuth} = useAuth();
     const navigate = useNavigate();
     const {userId} = useParams();
     const [currentDisplayUser, setCurrentDisplayUser] = useState();
     const [currentDisplayUserLoading, setCurrentDisplayUserLoading] = useState(true);
+    const [uploadingCover, setUploadingCover] = useState(false);
+
+    const coverFileRef = useRef();
 
     // get user
     useEffect(() => {
@@ -34,6 +37,64 @@ const Profile = () => {
         
     }, [userId, auth?.user]);
 
+    // Handle cover photo change
+    const handleCoverChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            console.error("Only image files are allowed");
+            return;
+        }
+
+        // Validate file size (max: 5mb)
+        if (file.size > 5 * 1024 * 1024) {
+            console.error("Image should be less than 5MB");
+            return;
+        }
+
+        setUploadingCover(true);
+
+        try {
+            // Upload file to Supabase
+            const imagePath = await uploadFile(file);
+
+            // Update user profile with new cover
+            const res = await axiosInstance.patch('/users', {
+                firstname: auth.user.firstname,
+                lastname: auth.user.lastname,
+                username: auth.user.username,
+                coverUrl: imagePath,
+            });
+
+            // Update auth context
+            const newAuth = {
+                ...auth,
+                user: {
+                    ...auth.user,
+                    coverUrl: res.data.coverUrl,
+                }
+            };
+            
+            await setAuth(newAuth);
+            
+            console.log('Cover photo updated successfully!');
+        } catch (error) {
+            console.error('Error uploading cover photo:', error);
+            console.error('Failed to update cover photo');
+        } finally {
+            setUploadingCover(false);
+        }
+    };
+
+    const handleCameraClick = () => {
+        // Only allow logged-in user to change their own cover
+        if (!userId) {
+            coverFileRef.current?.click();
+        }
+    };
+
     if (currentDisplayUserLoading) return <div>Loading user profile...</div>
 
   return (
@@ -41,9 +102,25 @@ const Profile = () => {
         <div className="profile__pictures">
             <div className="profile__cover-photo">
                 <img src={currentDisplayUser?.coverUrl ? currentDisplayUser?.coverUrl : "/calm-night.gif"} alt="cover photo" />
-                <div className="icon-container">
-                    <Camera />
-                </div>
+                {!userId && (
+                    <>
+                        <div 
+                            className="icon-container" 
+                            onClick={handleCameraClick}
+                            style={{cursor: uploadingCover ? 'not-allowed' : 'pointer'}}
+                        >
+                            <Camera />
+                        </div>
+                        <input 
+                            type="file" 
+                            ref={coverFileRef}
+                            onChange={handleCoverChange}
+                            accept="image/*"
+                            style={{display: 'none'}}
+                            disabled={uploadingCover}
+                        />
+                    </>
+                )}
             </div>
             <div className="profile__profile-picture">
                 <img src={currentDisplayUser?.profileUrl ? currentDisplayUser?.profileUrl : "/user.png"} alt="profile picture" />

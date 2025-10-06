@@ -73,7 +73,7 @@ export const AuthProvider = ({children}) => {
                     user: res?.data?.user,
                 });
             } catch (error) {
-                console.error("Refresh token error:", err);
+                console.error("Refresh token error:", error);
                 // User stays logged out
             } finally {
                 setAuthLoading(false)
