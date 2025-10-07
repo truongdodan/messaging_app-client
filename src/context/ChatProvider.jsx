@@ -1,5 +1,4 @@
 import { createContext, useState } from "react";
-import {useSocket} from "../context/SocketProvider"
 
 const ChatContext = createContext({});
 

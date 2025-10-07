@@ -7,14 +7,19 @@ import axiosInstance, { getFileUrl } from '../../../service/axios'
 import useAuth from '../../../hook/useAuth'
 import { useEffect } from 'react'
 
+const hoa = "dodantruong69@gmail.com";
+const truongreal = "dodantruong333@gmail.com";
+const gigachad = "deepbreathandtakeitslow999@gmail.com";
+const truongfake = "dodantruong04@gmail.com";
+
 const Login = () => {
     const {setAuth} = useAuth();
     const [account, setAccount] = useState({
-        email: "dodantruong333@gmail.com",
+        email: truongreal,
         password: "Strongp@ssword123",
     });
     const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/chats";
@@ -31,6 +36,8 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        setIsLoading(true);
 
         try {
             const loginUser = await axiosInstance.post('/login', account);

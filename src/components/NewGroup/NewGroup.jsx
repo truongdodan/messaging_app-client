@@ -7,10 +7,12 @@ import GoBackBtn from '../GoBackBtn/GoBackBtn'
 import axiosInstance from '../../service/axios'
 import useConversation from '../../hook/useConversation'
 import { useNavigate } from 'react-router-dom'
+import useSocket from '../../hook/useSocket'
 
 const NewGroup = () => {
   const {createConversation, conversationItems} = useConversation();
   const navigate = useNavigate();
+  const {onlineUsers} = useSocket()
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [newConversation, setNewConversation] = useState(null);
@@ -233,6 +235,7 @@ const NewGroup = () => {
                     key={user?.id} 
                     user={user} 
                     onClick={() => {handleAddMember(user)}}
+                    isOnline={onlineUsers.has(user.id)}
                   />
                 )
               }
@@ -246,6 +249,7 @@ const NewGroup = () => {
                 key={user?.id} 
                 user={user} 
                 onClick={() => {handleRemoveMember(user)}}
+                isOnline={onlineUsers.has(user.id)}
               />
             )
           }

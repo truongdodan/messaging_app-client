@@ -73,6 +73,12 @@ class SocketService {
         }
     }
 
+    onOnlineUserList(callback) {
+        if (this.socket) {
+            this.socket.on('online_users_list', callback);
+        }
+    }
+
     onUserOnline(callback) {
         if (this.socket) {
             this.socket.on('user_online', callback);

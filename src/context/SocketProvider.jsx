@@ -1,10 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import useAuth from "../hook/useAuth"
 import socketService from "../service/socket"
+import { data } from "react-router-dom";
 
 const SocketContext = createContext({});
-
-export const useSocket = () => useContext(SocketContext);
 
 // all conversations that current user have, no messages
 export const SocketProvider = ({children}) => {
@@ -28,16 +27,22 @@ export const SocketProvider = ({children}) => {
                 setIsConnected(false);
             })
 
+            // Receive initial list of online users when connecting
+            socketService.onOnlineUserList((data) => {
+                setOnlineUsers(new Set(data.userIds));
+            })
+
             // listen on new online/offline user
             socketService.onUserOnline((data) => {
                 setOnlineUsers(pre => new Set([...pre, data.userId]));
+
+                console.log(`${data.username} goes online`);
             })
 
             socketService.onUserOffline((data) => {
                 setOnlineUsers(pre => {
                     const newSet = new Set(pre);
                     newSet.delete(data.userId);
-
                     return newSet;
                 });
             })

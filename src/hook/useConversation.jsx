@@ -1,8 +1,8 @@
 import { useCallback, useContext, useEffect, useState } from "react"
 import ConversationContext from "../context/ConversationProvider";
-import { useSocket } from "../context/SocketProvider";
 import useChat from "./useChat";
 import { data, useNavigate } from "react-router-dom";
+import useSocket from "./useSocket";
 
 const useConversation = () => {
     const {socket, isConnected} = useSocket();

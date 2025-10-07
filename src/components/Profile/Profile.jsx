@@ -78,8 +78,6 @@ const Profile = () => {
             };
             
             await setAuth(newAuth);
-            
-            console.log('Cover photo updated successfully!');
         } catch (error) {
             console.error('Error uploading cover photo:', error);
             console.error('Failed to update cover photo');

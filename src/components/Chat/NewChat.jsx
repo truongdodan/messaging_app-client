@@ -58,7 +58,6 @@ const NewChat = () => {
     useEffect(() => {
         if (isCreatingConversation && !conversationItems && !userId) return;
 
-        console.log("wha?");
         // get newly created conver
         const newConversation = conversationItems?.find(
             conv => conv?.participants?.some(par => par?.user?.id === userId) && conv?.type === "DIRECT"

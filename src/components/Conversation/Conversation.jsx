@@ -5,7 +5,7 @@ import useAuth from '../../hook/useAuth';
 
 // type = 'DIRECT' display user fullname and username
 // type = 'GROUP' display conversation title
-const Conversation = ({conversation}) => {
+const Conversation = ({conversation, isOnline}) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,7 +29,7 @@ const Conversation = ({conversation}) => {
     <div className={isSelected ? 'conversation-item selected' : 'conversation-item'} onClick={openConversation}>
         <div className="profile-wrapper">
           <img src={conversation?.profileUrl ? conversation?.profileUrl : "/user.png"} alt="nahhh" />
-          <div className={conversation?.isActive ? 'active-indicator online' : 'active-indicator offline'}></div>
+          <div className={isOnline ? 'active-indicator online' : 'active-indicator offline'}></div>
         </div>
         {conversation?.type === "DIRECT" && conversation?.participants?.length > 0 && 
           <div className='conversation-item__title'>

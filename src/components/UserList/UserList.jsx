@@ -5,8 +5,9 @@ import axiosInstance from '../../service/axios'
 import useAuth from '../../hook/useAuth'
 import SidebarHeader from '../SidebarHeader/SidebarHeader'
 import { useNavigate } from 'react-router-dom'
+import useSocket from '../../hook/useSocket'
 
-const User = ({user, onClick}) => {
+const User = ({user, onClick, isOnline}) => {
     const navigate = useNavigate();
 
     const userProfileNavigate = () => {
@@ -17,7 +18,7 @@ const User = ({user, onClick}) => {
         <div className='user-item' onClick={onClick ? onClick : userProfileNavigate}>
             <div className="profile-wrapper">
             <img src={user?.profileUrl ? user.profileUrl : "/user.png"} alt="" />
-            <div className={user?.isActive ? 'active-indicator online' : 'active-indicator offline'}></div>
+            <div className={isOnline ? 'active-indicator online' : 'active-indicator offline'}></div>
             </div>
             <div className='user-item__title'>
                 <p className='fullname'>{user.lastname + ' ' + user.firstname}</p>
@@ -34,6 +35,8 @@ const UserList = ({onCloseIconClick}) => {
     const [users, setUsers] = useState([]);
     const [searchedValue, setSearchedValue] = useState("");
     const timeoutRef = useRef(null); // store timeout ref
+
+    const {onlineUsers} = useSocket();
 
     // Get all users
     useEffect(() => {
@@ -99,7 +102,7 @@ const UserList = ({onCloseIconClick}) => {
             onChange={handleOnchange}/>
         </form>
         <div className="user-list">
-            {users && users.map(user => (user?.id !== auth?.user?.id) && <User key={user?.id} user={user} />)}
+            {users && users.map(user => (user?.id !== auth?.user?.id) && <User key={user?.id} user={user} isOnline={onlineUsers.has(user.id)}/>)}
         </div>
     </div>
   )
