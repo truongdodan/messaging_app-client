@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import './Message.css'
 import {EllipsisVertical} from 'lucide-react'
-import axiosInstance from '../../service/axios'
 
 // handle content type when rendering
-const MessageContent = ({type, content}) => {
+const MessageContent = ({type, content, onImageLoad}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [fileDetails, setFileDetails] = useState({});
   let message;
@@ -28,7 +27,7 @@ const MessageContent = ({type, content}) => {
         <div className='message--image image-wrapper'>
             {
               fileDetails?.path
-              ? <img src={fileDetails?.path || '#'} alt={fileDetails?.filename}/>
+              ? <img src={fileDetails?.path || '#'} alt={fileDetails?.filename} onLoad={onImageLoad}/>
               : <div style={{color: "red"}}>Fail to load image</div>
             }
         </div>
@@ -48,7 +47,8 @@ const MessageContent = ({type, content}) => {
 // 'type' text, img.
 // 'content' text content or image url.
 // 'label' indicate who the message coming from (SELF, OTHER)
-const Message = ({message, isSender}) => {
+const Message = ({message, isSender, onImageLoad}) => {
+
   return (
     <>
       { 
@@ -57,13 +57,13 @@ const Message = ({message, isSender}) => {
                 <div className="icon-container icon message-options">
                   <EllipsisVertical size={16}/>
                 </div>
-                <MessageContent type={message?.type} content={message?.content}/>
+                <MessageContent type={message?.type} content={message?.content} onImageLoad={onImageLoad}/>
             </div>
           : <div className='message message--other'> 
               <div className="message__grid-wrapper">
                 <div className='message__username'>{'@' + message?.sender?.username}</div>
                 <div className='message__content'>
-                  <MessageContent type={message?.type} content={message?.content}/> 
+                  <MessageContent type={message?.type} content={message?.content} onImageLoad={onImageLoad}/> 
                 </div> 
                 <div className='message__profile'>
                   <img src={message?.sender?.profileUrl ? message?.sender?.profileUrl : "/user.png"} alt="" />

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './UserList.css'
 import { X } from 'lucide-react'
-import axiosInstance from '../../service/axios'
+import axiosInstance, { getFileUrl } from '../../service/axios'
 import useAuth from '../../hook/useAuth'
 import SidebarHeader from '../SidebarHeader/SidebarHeader'
 import { useNavigate } from 'react-router-dom'
@@ -38,37 +38,63 @@ const UserList = ({onCloseIconClick}) => {
 
     const {onlineUsers} = useSocket();
 
+    // get image url here
+
     // Get all users
     useEffect(() => {
         if (!auth?.accessToken) return;
+
+        const getUser = async () => {
+            try {
+                const res = await axiosInstance.get('/users');
+                const users = await getUserListWithImageUrl(res?.data || []);
+                setUsers(users);
+
+            } catch (error) {
+                console.error("Error when trying to get users: ", error);
+            }
+        }
+
+        getUser();
         
-        axiosInstance.get("/users")
-            .then(res => {
-                setUsers(res.data);
-            })
-            .catch(err => {
-                console.error(err);
-            })
     }, [auth?.accessToken]);
 
-    const searchUsers = (search) => {
-        if (!search.trim()) { // if search is empty get all
-            axiosInstance.get("/users")
-            .then(res => {
-                setUsers(res.data);
-            })
-            .catch(err => {
-                console.error(err);
-            })
-        } else {
-            axiosInstance.get(`/users?search_query=${search}`)
-            .then(res => {
-                setUsers(res.data);
-            })
-            .catch(err => {
-                console.error(err);
-            })
+    const searchUsers = async (search) => {
+        try {
+            if (!search.trim()) { // if search is empty get all
+                const res = await axiosInstance.get('/users');
+                const users = await getUserListWithImageUrl(res?.data || []);
+                setUsers(users);
+            } else {
+                const res = await axiosInstance.get(`/users?search_query=${search}`);
+                const users = await getUserListWithImageUrl(res?.data || []);
+                setUsers(users);
+            }
+        } catch (error) {
+            console.error("Error when searching for users: ", error);
         }
+    }
+
+    const getUserListWithImageUrl = async (userList) => {
+        if (!userList || userList?.length === 0) return [];
+
+        const usersWithUrl = await Promise.all(
+            userList?.map(async (user) => {
+                if (!user?.profileUrl) return user; // return if theres no profile image
+
+                try {
+                    const imageUrl = await getFileUrl(user.profileUrl);
+
+                    return {...user, profileUrl: imageUrl}
+                } catch (error) {
+                    console.error("Error when fetching user image from cloud: ", error);
+
+                    return {...user, profileUrl: '/user.png'};
+                }
+            })
+        );
+
+        return usersWithUrl;
     }
 
     const handleOnchange = (e) => {
@@ -102,7 +128,7 @@ const UserList = ({onCloseIconClick}) => {
             onChange={handleOnchange}/>
         </form>
         <div className="user-list">
-            {users && users.map(user => (user?.id !== auth?.user?.id) && <User key={user?.id} user={user} isOnline={onlineUsers.has(user.id)}/>)}
+            {users && users?.map(user => (user?.id !== auth?.user?.id) && <User key={user?.id} user={user} isOnline={onlineUsers.has(user.id)}/>)}
         </div>
     </div>
   )

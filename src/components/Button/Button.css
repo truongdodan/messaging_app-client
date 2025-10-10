@@ -12,3 +12,7 @@
     font-size: 1rem;
     cursor: pointer;
 }
+
+.active-button.loading {
+    opacity: 0.8;
+}

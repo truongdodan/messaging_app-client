@@ -6,6 +6,7 @@ import GoBackBtn from '../GoBackBtn/GoBackBtn';
 import axiosInstance, { uploadFile } from '../../service/axios';
 import useAuth from '../../hook/useAuth';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const EditProfile = () => {
     profileUrl: auth?.user?.profileUrl,
   });
   const [previewImage, setPreviewImage] = useState();
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   const fileRef = useRef();
 
@@ -67,6 +69,8 @@ const EditProfile = () => {
 
     if (!newProfile && !fileRef?.current?.files[0]) return;
 
+    setIsUpdatingProfile(true);
+
     let updatedProfle = {...newProfile};
 
     if (fileRef?.current?.files[0]) {
@@ -98,11 +102,12 @@ const EditProfile = () => {
       }
 
       setAuth(newAuth);
+      toast.success('Profile updated!');
       navigate('/profile');
-
     } catch (error) {
       console.error("Error update profile: ", error);
-    }
+      toast.error('Error updating profile');
+    } finally {isUpdatingProfile(false);}
 
   }
 
@@ -174,7 +179,7 @@ const EditProfile = () => {
             />
           </div>
         </div>
-        <Button text={'Save'}/>
+        <Button text={'Save'} loading={isUpdatingProfile}/>
       </form>
     </div>
   )

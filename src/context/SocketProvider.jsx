@@ -35,8 +35,6 @@ export const SocketProvider = ({children}) => {
             // listen on new online/offline user
             socketService.onUserOnline((data) => {
                 setOnlineUsers(pre => new Set([...pre, data.userId]));
-
-                console.log(`${data.username} goes online`);
             })
 
             socketService.onUserOffline((data) => {

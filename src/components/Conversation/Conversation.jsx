@@ -16,6 +16,7 @@ const Conversation = ({conversation, isOnline}) => {
     : `/groups/${conversation?.id}`;
   const isSelected = location.pathname === expectedPath;
   const recipient = conversation?.participants?.find  (par => par?.user?.id !== auth?.user?.id);
+  const profileUrl = isChats ? conversation?.participants?.[0].user?.profileUrl : conversation?.profileUrl;
 
   const openConversation = () => {
     if (isChats) {
@@ -28,7 +29,7 @@ const Conversation = ({conversation, isOnline}) => {
   return (
     <div className={isSelected ? 'conversation-item selected' : 'conversation-item'} onClick={openConversation}>
         <div className="profile-wrapper">
-          <img src={conversation?.profileUrl ? conversation?.profileUrl : "/user.png"} alt="nahhh" />
+          <img src={profileUrl ? profileUrl : "/user.png"} alt="nahhh" />
           <div className={isOnline ? 'active-indicator online' : 'active-indicator offline'}></div>
         </div>
         {conversation?.type === "DIRECT" && conversation?.participants?.length > 0 && 

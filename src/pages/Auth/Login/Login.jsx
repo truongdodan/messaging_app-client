@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import axiosInstance, { getFileUrl } from '../../../service/axios'
 import useAuth from '../../../hook/useAuth'
-import { useEffect } from 'react'
+import toast from 'react-hot-toast'
 
 const hoa = "dodantruong69@gmail.com";
 const truongreal = "dodantruong333@gmail.com";
@@ -31,7 +31,7 @@ const Login = () => {
         });
 
         // reset error
-        setError("");
+        setError('');
     }
 
     const handleSubmit = async (e) => {
@@ -46,9 +46,9 @@ const Login = () => {
                 user: loginUser.data.user,
             })
 
+            toast.success('Login successfully');
             navigate(from, {replace: true});
         } catch (error) {
-            console.error("Error when trying to login: ", error);
             const errorData = error.response?.data?.error;
         
             // Check if validation errors exist
@@ -58,7 +58,8 @@ const Login = () => {
                 setError(firstError.msg || errorData.msg);
             } else {
                 // Show generic error message
-                setError(errorData?.msg || 'Login failed');
+                console.error("Login failed: ", error);
+                setError(errorData?.msg || toast.error('Login failed! Try again'));
             }
         } finally {setIsLoading(false);}
 
@@ -85,12 +86,12 @@ const Login = () => {
                 {error && <div className="error">{error}</div>}
                 <div className="auth__buttons">
                     <Button text={'Global Chat'} className={'navigate-btn'} onClick={() => {navigate("/global")}}/>
-                    <Button text={'Submit'}/>
+                    <Button text={'Submit'} loading={isLoading}/>
                 </div>
             </form>
         </div>
         <div className="img-wrapper">
-            <img src="https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.qNfoguQF-UXY1F1MdXDXrAHaHY%3Fr%3D0%26pid%3DApi&sp=1756109780T19726f90bd4d4695c6414120513035b2bda4ee574a22416e138517cfa41f5e52" alt="logo" />
+            <img src="jj" alt="logo" />
         </div>
     </div>
   ) 

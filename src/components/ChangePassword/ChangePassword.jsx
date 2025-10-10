@@ -6,6 +6,7 @@ import GoBackBtn from '../GoBackBtn/GoBackBtn'
 import { useState } from 'react'
 import axiosInstance from '../../service/axios'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -54,10 +55,10 @@ const ChangePassword = () => {
       const updatedUser = await axiosInstance.patch('/users/me/password', passwords);
       
       console.log("Password changed successfully!");
+      toast.success('Password has been changed');
       if(updatedUser) navigate('/profile');
     } catch (err) {
       console.error('Error changing password:', err);
-      
       
       const errorData = err.response?.data?.error;
     
@@ -69,6 +70,8 @@ const ChangePassword = () => {
           // Show generic error message
           setError(errorData?.msg || 'Failed to change password');
       }
+
+      toast.error('Change password failed')
 
     } finally {
       setLoading(false);
@@ -117,7 +120,7 @@ const ChangePassword = () => {
           />
         </div>
         {error && <div className='error'>{error}</div>}
-        <Button text={'Save'}/>
+        <Button text={'Save'} loading={loading}/>
       </form>
     </div>
   )

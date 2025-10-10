@@ -1,16 +1,14 @@
-import React, { useEffect } from 'react'
 import './Layout.css'
 import {Link, Outlet, useLocation} from 'react-router-dom'
 import {Globe, MessageCircle, Users, CircleUser, LogOut} from 'lucide-react'
 import { logout } from '../../service/axios'
 import useAuth from '../../hook/useAuth'
-import { ConversationProvider } from '../../context/ConversationProvider'
-import { ChatProvider } from '../../context/ChatProvider'
 
 const Layout = () => {
   // get location for the current tab display
   const location = useLocation();
-  const {setAuth} = useAuth();
+  const {auth, setAuth} = useAuth();
+
 
   return (
     <div className='main-container'>

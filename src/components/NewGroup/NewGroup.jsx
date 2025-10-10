@@ -8,6 +8,7 @@ import axiosInstance from '../../service/axios'
 import useConversation from '../../hook/useConversation'
 import { useNavigate } from 'react-router-dom'
 import useSocket from '../../hook/useSocket'
+import toast from 'react-hot-toast'
 
 const NewGroup = () => {
   const {createConversation, conversationItems} = useConversation();
@@ -61,6 +62,8 @@ const NewGroup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setIsCreatingConversation(true);
+
     const membersIds = groupMemberList?.map(member => member?.id);
     const file = fileInputRef?.current?.files[0];
 
@@ -86,16 +89,15 @@ const NewGroup = () => {
             const { path } = res.data;
         
             // create new group/conversation
-            setIsCreatingConversation(true);
 
             const handleNewConversation = (res) => {
               if (res.error) {
-                console.error("Fail to create conversation: ", res.error);
+                console.error("Error when creating new group: ", res.error);
+                toast.error('Error when creating new group')
               }
 
               console.log("New group conver created");
               setNewConversation(res);
-              setIsCreatingConversation(false);
             }
             
             createConversation({
@@ -107,17 +109,18 @@ const NewGroup = () => {
 
     } catch (error) {
         console.error('File upload failed:', error);
-        // Handle error (e.g., show toast)
+        setIsCreatingConversation(false);
     }
   }
 
   // listen for new group/conversation created
   useEffect(() => {
-    if (!isCreatingConversation && !newConversation?.id) return;
+    if (!isCreatingConversation || !newConversation?.id) return;
 
+    toast.success('New group created');
     navigate(`/groups/${newConversation?.id}`);
 
-  }, [conversationItems, isCreatingConversation, newConversation?.id]);
+  }, [isCreatingConversation, newConversation]);
 
   const searchUsers = (search) => {
         if (!search.trim()) { // if search is empty get all
@@ -254,7 +257,7 @@ const NewGroup = () => {
             )
           }
         </div>
-        <Button text={'Create Group'}/>
+        <Button text={'Create Group'} loading={isCreatingConversation}/>
       </form>
     </div>
   )

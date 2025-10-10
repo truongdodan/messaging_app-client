@@ -5,9 +5,64 @@ import Message from '../Message/Message'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import GoBackBtn from '../GoBackBtn/GoBackBtn'
 import useChat from '../../hook/useChat'
-import axiosInstance from '../../service/axios'
+import axiosInstance, { uploadFile } from '../../service/axios'
 import useAuth from '../../hook/useAuth'
 import useConversation from '../../hook/useConversation'
+import { UserSkeleton } from '../Sekeleton/Skeleton'
+
+const BlankChat = () => {
+    return <div style={{
+                    width: "100%",
+                    height: "100%",
+                    fontSize: "1rem",
+                    fontWeight: "normal",
+                    fontStyle: "italic",
+                    color: "var(--color-txt-secondary)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    }}>
+                    Start a conversation, say Hi!
+                </div>
+}
+
+// format date separator display
+const formatDateSeparator = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+        return 'Today';
+    }
+
+    if (date.toDateString() === yesterday.toDateString()) {
+        return 'Yesterday';
+    }
+
+    // Check if within this week
+    // Get the start of the current week (Monday)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // getDay() -> 0=Sun, 1=Mon,...
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    // Get the end of the week (Sunday)
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    if (date >= startOfWeek && date <= endOfWeek) {
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+
+    // Otherwise show full date
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+    });
+}
 
 const Chat = ({type, globalChatIndex}) => {
     const location = useLocation();
@@ -17,9 +72,11 @@ const Chat = ({type, globalChatIndex}) => {
     const {auth} = useAuth();
     const {currentChat, currentChatLoading, sendMessage} = useChat(type === "GLOBAL" ? globalChatIndex : conversationId);
     const {conversationItems, conversationItemsLoading} = useConversation();
+
     const [messageInput, setMessageInput] = useState("");
     const [loading, setLoading] = useState(true);
     const hasSendPendingMessageRef = useRef(false);
+    
     const sendMessageBtnRef = useRef(null);
     const messageEndRef = useRef(null);
     const fileInputRef = useRef(null);
@@ -31,10 +88,10 @@ const Chat = ({type, globalChatIndex}) => {
 
     // set title and profile for the conversation
     useEffect(() => {
-        if (currentChatLoading || !currentChat) return;
+        if (currentChatLoading) return;
 
-            // set title and profile for header
-            if (!conversationItems && conversationItemsLoading && (currentChatLoading || !currentChat)) return;
+            // return if conversation items is loading
+            if (!conversationItems && conversationItemsLoading) return;
 
             // set title and profile for header
             const currentItem = conversationItems?.find(
@@ -87,7 +144,7 @@ const Chat = ({type, globalChatIndex}) => {
         }, [onSendMessage]);
 
     const scrollToBottom = useCallback(() => {
-        messageEndRef?.current?.scrollIntoView({behavior: 'smooth'});
+        messageEndRef?.current?.scrollIntoView();
     }, []);
 
     // auto scroll to bottom when messages change
@@ -95,20 +152,15 @@ const Chat = ({type, globalChatIndex}) => {
         if (currentChat?.messages?.length > 0 && !loading) {
             scrollToBottom();
         }
-    }, [currentChat?.messages, scrollToBottom, loading]);
+    }, [currentChat?.messages?.length, loading]);
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        const formData = new FormData();
-        formData.append('file', file);
-
+        
         try {
-            const res = await axiosInstance.post('/messages/file', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-            const { path } = res.data;
+            const path = await uploadFile(file);
 
             // Send message with file details
             const fileDetails = {
@@ -127,8 +179,22 @@ const Chat = ({type, globalChatIndex}) => {
         }
     };
 
-    if (loading) return <div>Loading Chat...</div>; 
-    if (!currentChat) return <div>Conversation not found</div> // problem
+    // group message by date
+    const groupMessages = (messages) => {
+        if (!messages || messages.length === 0) return {};
+
+        return messages.reduce((groups, msg) => {
+            const date = new Date(msg.createdAt).toDateString();
+
+            if (!groups[date]) groups[date] = [];
+            groups[date].push(msg);
+
+            return groups;
+        }, {})
+    }
+
+    if (loading) return <UserSkeleton />; 
+    if (!loading && !currentChat) return <div className=''>Conversation not found</div> 
 
 
   return (
@@ -148,29 +214,23 @@ const Chat = ({type, globalChatIndex}) => {
                     (currentChat && currentChat?.messages?.length > 0)
                     ? <>
                         {
-                            currentChat?.messages?.map(message => 
-                            <Message 
-                                key={message?.id}
-                                message={message} 
-                                isSender={message?.sender?.username === auth?.user?.username}
-                            />
-                            )
+                            Object.entries(groupMessages(currentChat.messages)).map(([date, msgs]) => (
+                                <React.Fragment key={date}>
+                                    <div className='data-separator'>{formatDateSeparator(date)}</div>
+                                    {
+                                        msgs.map(msg => <Message 
+                                                        key={msg?.id}
+                                                        message={msg} 
+                                                        isSender={msg?.sender?.username === auth?.user?.username}
+                                                        onImageLoad={scrollToBottom}
+                                                    />)
+                                    }
+                                </React.Fragment>
+                            ))
                         }
                         <div ref={messageEndRef}/>
                       </>
-                    : <div style={{
-                        width: "100%",
-                        height: "100%",
-                        fontSize: "1rem",
-                        fontWeight: "normal",
-                        fontStyle: "italic",
-                        color: "var(--color-txt-secondary)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                       }}>
-                        Start a conversation, say Hi!
-                      </div>
+                    : <BlankChat />
                 }
             </div> 
             <hr />

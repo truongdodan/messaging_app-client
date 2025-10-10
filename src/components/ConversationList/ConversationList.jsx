@@ -6,14 +6,13 @@ import {useLocation} from 'react-router-dom'
 import SidebarHeader from '../SidebarHeader/SidebarHeader';
 import useConversation from '../../hook/useConversation'
 import useSocket from '../../hook/useSocket';
+import { ConversationSkeleton } from '../Sekeleton/Skeleton';
 
 // get list of conversation for data
 // get function to determine what the new icon do - find user or create new group chat
 const ConversationList = ({loading, conversations, closable=false, onNewIconClick, onCloseIconClick}) => {
     const location = useLocation(); 
     const {onlineUsers} = useSocket();
-
-    if(loading) return <div>Conversation Loading...</div>
 
   return (
     <div className='conversation-list'>
@@ -23,7 +22,15 @@ const ConversationList = ({loading, conversations, closable=false, onNewIconClic
         onNewIconClick={onNewIconClick} 
         onCloseIconClick={onCloseIconClick}/> 
         <div className='conversation-list__body'>
-            {conversations && conversations.map(conver => <Conversation 
+            {
+              loading
+              ? <>
+                  <ConversationSkeleton />
+                  <ConversationSkeleton />
+                  <ConversationSkeleton />
+                  <ConversationSkeleton />
+                </>
+              : conversations && conversations.map(conver => <Conversation 
                                                             key={conver?.id} 
                                                             conversation={conver} 
                                                             isOnline={
@@ -32,7 +39,8 @@ const ConversationList = ({loading, conversations, closable=false, onNewIconClic
                                                                   : false  // Don't show online status for groups
                                                             }
                                                           />
-            )}
+                )
+            }
         </div>
     </div>
   )

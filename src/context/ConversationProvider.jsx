@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import axiosInstance, { getFileUrl } from "../service/axios";
 import useAuth from "../hook/useAuth";
+import toast from "react-hot-toast";
 
 const ConversationContext = createContext({});
 
@@ -23,15 +24,14 @@ export const ConversationProvider = ({children}) => {
                 // get all the conversation profile image
                 const conversationsWithImageUrl = await Promise.all(
                     conversations.map(async (conver) => {
-                        if (!conver.profileUrl) return conver;
+                        // if (!conver.profileUrl) return conver;
 
                         try {
-
-                            if (conver.type === "GROUP") { // if is GROUP conversation also get other party image url
+                            if (conver.type === "GROUP" && conver?.profileUrl) { // if is GROUP conversation also get other party image url
                                 const converImageUrl = await getFileUrl(conver.profileUrl);
 
                                 return { ...conver, profileUrl: converImageUrl};
-                            } else if (conver.type === "DIRECT" && conver?.participants?.[0]) {
+                            } else if (conver.type === "DIRECT" && conver?.participants?.[0]?.user?.profileUrl) {
                                 const recipientimageUrl = await getFileUrl(conver.participants[0].user.profileUrl);
                                 
                                 return { 
@@ -52,7 +52,7 @@ export const ConversationProvider = ({children}) => {
                         } catch (error) {
                             console.error("Error fetch conversation profile Url: ", error);
 
-                            return conver;
+                            return { ...conver, profileUrl: './user.png'};
                         }
                     })
                 )
@@ -61,6 +61,7 @@ export const ConversationProvider = ({children}) => {
                 setConversationItems(conversationsWithImageUrl);
             } catch (error) {
                 console.error("Error when fetching conversation items: ", error);
+                toast('Getting image for conversation error');
             } finally {
                 setConversationItemsLoading(false);
             }

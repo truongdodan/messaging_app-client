@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios';
 
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:3000',
@@ -66,17 +66,22 @@ export const logout = (setAuth) => {
 export const getFileUrl = async (fileName) => {
     if (!fileName) {
         console.error("File name required");
-        return;
+        return null;
     }
 
     if (typeof fileName !== 'string') {
         console.error("File name have to be a String");
-        return;
+        return null;
     }
 
-    const res = await axiosInstance.get(`/messages/file/sign-url?path=${fileName}`);
+    try {
+        const res = await axiosInstance.get(`/messages/file/sign-url?path=${fileName}`);
 
-    return res.data.signedUrl;
+        return res.data.signedUrl;
+    } catch (error) {
+        console.error(`Failed getting file url: `, error);
+        return null;
+    }
 }
 
 export const uploadFile = async (fileInput) => {
@@ -94,11 +99,16 @@ export const uploadFile = async (fileInput) => {
     formData.append('file', fileInput);
     
 
-    const res = await axiosInstance.post(`/messages/file`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    try {
+        const res = await axiosInstance.post(`/messages/file`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
 
-    return res?.data?.path;
+        return res?.data?.path;
+    } catch (error) {
+        console.error('Fail upload file: ', error);
+        return null;
+    }
 }
 
 export default axiosInstance;

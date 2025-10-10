@@ -42,7 +42,7 @@
     overflow: auto;
     padding: 0.5rem; /* right padding for space */
 }
-.conversation__messages .time {
+.data-separator {
     justify-self: center;
     font-size: small;
     color: var(--color-txt-secondary);

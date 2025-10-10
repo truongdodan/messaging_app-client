@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from "react"
 import ChatContext from "../context/ChatProvider";
 import axiosInstance, { getFileUrl } from "../service/axios";
 import useSocket from "./useSocket";
+import toast from "react-hot-toast";
 
 const useChat = (chatId) => {
     const {socket, isConnected} = useSocket();
@@ -28,44 +29,45 @@ const useChat = (chatId) => {
                 try {
                     const res = await axiosInstance.get(`/conversations/${chatId}`);
                     const chat = res?.data;
-
+                    
                     // get all the image in chat
-                    const chatWithImageUrl = await Promise.all(
-                        chat?.messages?.map(async (msg) => {
-                            if (msg?.type === "FILE") { // if message is a file or image => get url
-                                const msgDetails = JSON.parse(msg?.content);
+                    if (chat) {
+                        const chatWithImageUrl = await Promise.all(
+                            chat?.messages?.map(async (msg) => {
+                                if (msg?.type === "FILE") { // if message is a file or image => get url
+                                    const msgDetails = JSON.parse(msg?.content);
 
-                                const url = await getFileUrl(msgDetails?.path);
+                                    const url = await getFileUrl(msgDetails?.path);
 
-                                const msgWithUrl = JSON.stringify({
-                                    ...msgDetails,
-                                    path: url,
-                                });
+                                    const msgWithUrl = JSON.stringify({
+                                        ...msgDetails,
+                                        path: url,
+                                    });
 
-                                return {...msg, content: msgWithUrl};
-                            }
+                                    return {...msg, content: msgWithUrl};
+                                }
 
-                            return msg;
-                        })
-                    );
+                                return msg;
+                            })
+                        );
 
-                    // u may need double check if chat is repeated
-                    setCurrentChat({
-                        ...chat,
-                        messages: chatWithImageUrl,
-                    });
+                        // u may need double check if chat is repeated
+                        setCurrentChat({
+                            ...chat,
+                            messages: chatWithImageUrl,
+                        });
+                    }
                     
                 } catch (error) {
                     console.error("Error when getting chat: ", error);
-                }
-
-                setCurrentChatLoading(false);
+                    toast.error('Error when getting chat');
+                } finally {setCurrentChatLoading(false);}
             }
         }
 
         getCurrentConversation();
             
-    }, [chatId, isConnected, chatList, setCurrentChat, setChatList]);
+    }, [chatId, isConnected, chatList]);
 
     // handle in-coming message via socket
     useEffect(() => {
