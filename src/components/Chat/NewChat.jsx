@@ -1,38 +1,33 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import './Chat.css'
-import { ArrowLeftIcon, Image, SendHorizonal } from 'lucide-react'
-import Message from '../Message/Message'
+import { Image, SendHorizonal } from 'lucide-react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import GoBackBtn from '../GoBackBtn/GoBackBtn'
-import useChat from '../../hook/useChat'
 import axiosInstance from '../../service/axios'
-import useAuth from '../../hook/useAuth'
-import useConversation from '../../hook/useConversation'
+import useMessaging from '../../hook/useMessaging'
+import toast from 'react-hot-toast'
 
 const NewChat = () => {
     const {userId} = useParams();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const {conversationItems, conversationItemsLoading, createConversation} = useConversation();
+    const {conversations, conversationsLoading, createConversation} = useMessaging();
 
-    const [recipient, setRecipient] = useState(null);
-    const [recipientLoading, setRecipientLoading] = useState(true);
-    const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+    const [recipient, setRecipient] = useState(location.state?.user || null);
+    const [recipientLoading, setRecipientLoading] = useState(!location.state?.user);
     const [messageInput, setMessageInput] = useState("");
-    const pendingMessageRef = useRef(null);
-    const sendMessageBtnRef = useRef(); 
+    const [isSending, setIsSending] = useState(false);
 
     const chatOpen = location.pathname !== "/chats" || location.path !== "/groups";
 
-    // check if conver exist and redirect
+    // Check if conversation already exists and redirect
     useEffect(() => {
-        if (conversationItemsLoading) return;
+        if (conversationsLoading) return;
 
-        // check if login user already have a chat with this user
-        const existConversation = conversationItems?.find(conversationItem => 
-            conversationItem?.type === "DIRECT" && // conversation have to be DIRECT
-            conversationItem?.participants?.some(participant => participant?.user?.id ===userId) // conversation have the choosen user
+        const existConversation = conversations?.find(conv => 
+            conv?.type === "DIRECT" && // conversation HAVE to be DIRECT
+            conv?.participants?.some(participant => participant?.user?.id ===userId) // conversation have the choosen user
         )
 
         if (existConversation) {    // if exist, navigate to chat page to continue chat
@@ -41,56 +36,56 @@ const NewChat = () => {
             return;
         }
         
-    }, [conversationItemsLoading, userId, conversationItems, navigate])
+    }, [conversationsLoading, userId, conversations, navigate])
 
-    // load user infor for header
+    // Fetch user infor if it's not passed via state
     useEffect(() => {
+        if (recipient || !userId) return;
+
         setRecipientLoading(true);
         axiosInstance(`/users/${userId}`)
-            .then(res => {
-                setRecipient(res?.data);
+            .then(res => setRecipient(res?.data))
+            .catch(err => {
+                console.error("Error fetching user info:", err);
+                toast.error("Failed to load user");
             })
-            .catch(err => console.error("Error when trying to get user infor: ", err))
             .finally(() => setRecipientLoading(false));
-    }, [userId]);
-
-    // listen when new converation is created to redirect to /chats page
-    useEffect(() => {
-        if (isCreatingConversation && !conversationItems && !userId) return;
-
-        // get newly created conver
-        const newConversation = conversationItems?.find(
-            conv => conv?.participants?.some(par => par?.user?.id === userId) && conv?.type === "DIRECT"
-        );
-        
-        if (newConversation && pendingMessageRef.current) {
-            // navigate to chat with pending message
-            console.log("New cv: ", newConversation);
-            navigate(`/chats/${newConversation.id}`, {
-                replace: true,
-                state: {pendingMessage: pendingMessageRef.current},
-            });
-
-            // clean up
-            pendingMessageRef.current = null;
-            setIsCreatingConversation(false);
-        }
-    }, [conversationItems, isCreatingConversation, userId, navigate]);
+    }, [userId, recipient]);
 
     const onSendMessage = useCallback(() => {
-        if (!messageInput.trim() || !recipient || isCreatingConversation) return;
+        if (!messageInput.trim() || !recipient || isSending) return;
 
-        // store pending message to send after the conversation is created
-        pendingMessageRef.current = {type: 'TEXT', content: messageInput}
+        setIsSending(true);
+        const messageToSend = messageInput.trim();
 
-        setIsCreatingConversation(true);
+        // Create conversation
         createConversation({
             type: "DIRECT",
-            allMemberIds: [recipient?.id],
-        }, () => {})
-        
+            title: "",
+            allMemberIds: [recipient.id],
+        }, (response) => {
+            if (!response.success) {
+                setIsSending(false);
+                toast.error(response.error || 'Failed to create conversation');
+                console.error("Error creating conversation:", response.error);
+                return;
+            }
+
+            // Navigate to new chat with pending message
+            navigate(`/chats/${response.data.id}`, {
+                replace: true,
+                state: { 
+                    pendingMessage: { 
+                        type: 'TEXT', 
+                        content: messageToSend 
+                    } 
+                }
+            });
+        });
+
+        // Clear input immediately
         setMessageInput("");
-    }, [messageInput, recipient, isCreatingConversation, createConversation]);
+    }, [messageInput, recipient, isSending, createConversation, navigate]);
 
     const handleKeydown = useCallback((e) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -99,8 +94,7 @@ const NewChat = () => {
         }
     }, [onSendMessage]);
 
-    if (recipientLoading) return <div>Loading User Infor...</div>; 
-
+    if (recipientLoading) return <div>Loading User Info...</div>; 
     if (!recipient) return <div>User not found</div>;
 
   return (
@@ -111,7 +105,7 @@ const NewChat = () => {
                 <GoBackBtn />
                 <div className="profile-container">
                     <img 
-                        src={recipient?.profile ? recipient?.profile : "/user.png"} 
+                        src={recipient?.profileUrl ? recipient?.profileUrl : "/user.png"}
                         alt="user profile" 
                     />
                 </div>
@@ -146,15 +140,14 @@ const NewChat = () => {
                     }}
                     value={messageInput}
                     onKeyDown={handleKeydown}
-                    disabled={isCreatingConversation}
+                    disabled={isSending}
                 />
                 <div className="icon-container image">
                     <Image />
                 </div>
                 <div 
                     className="icon-container send-message" 
-                    onClick={onSendMessage} 
-                    ref={sendMessageBtnRef}
+                    onClick={onSendMessage}
                 >
                     <SendHorizonal />
                 </div>

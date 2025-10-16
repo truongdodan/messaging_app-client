@@ -1,22 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './NewGroup.css'
-import { ArrowLeftIcon, Camera, Pen } from 'lucide-react'
+import { Pen } from 'lucide-react'
 import Button from '../Button/Button'
 import { User } from '../UserList/UserList'
 import GoBackBtn from '../GoBackBtn/GoBackBtn'
 import axiosInstance from '../../service/axios'
-import useConversation from '../../hook/useConversation'
 import { useNavigate } from 'react-router-dom'
 import useSocket from '../../hook/useSocket'
 import toast from 'react-hot-toast'
+import useMessaging from '../../hook/useMessaging';
 
 const NewGroup = () => {
-  const {createConversation, conversationItems} = useConversation();
   const navigate = useNavigate();
   const {onlineUsers} = useSocket()
+  const {createConversation} = useMessaging();
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
-  const [newConversation, setNewConversation] = useState(null);
 
   const [previewImage, setPreviewImage] = useState(null);
   const [groupName, setGroupName] = useState("");
@@ -62,10 +61,16 @@ const NewGroup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setIsCreatingConversation(true);
+    // Clear previous errors
+    setError("");
 
     const membersIds = groupMemberList?.map(member => member?.id);
     const file = fileInputRef?.current?.files[0];
+
+    if (!groupName.trim()) {
+      setError("Please enter a group name");
+      return;
+    }
 
     if (!file) {
       setError("Please choose group image");
@@ -78,49 +83,45 @@ const NewGroup = () => {
       return;
     }
 
+    setIsCreatingConversation(true);
+
     try {
-            // upload group image to cloud
-            const formData = new FormData();
-            formData.append("file", file);
-            
-            const res = await axiosInstance.post('/messages/file', formData, {
-              headers: { 'Content-Type': 'multipart/form-data' },
-            });
-            const { path } = res.data;
-        
-            // create new group/conversation
+      // Upload group image to cloud
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const res = await axiosInstance.post('/files/profile', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const { path } = res.data;
+  
+      // create new group/conversation
+      createConversation({
+          type: "GROUP",
+          title: groupName,
+          profileUrl: path,
+          allMemberIds: membersIds,
+      }, (response) => {
+        setIsCreatingConversation(false);
 
-            const handleNewConversation = (res) => {
-              if (res.error) {
-                console.error("Error when creating new group: ", res.error);
-                toast.error('Error when creating new group')
-              }
+        if (!response.success) {
+          console.error("Error creating group:", response.error);
+          toast.error(response.error || 'Failed to create group');
+          return;
+        }
 
-              console.log("New group conver created");
-              setNewConversation(res);
-            }
-            
-            createConversation({
-                type: "GROUP",
-                title: groupName,
-                profileUrl: path,
-                allMemberIds: membersIds,
-            }, handleNewConversation);
+        // Success - navigate to new group
+        const newGroupId = response.data.id; 
+        toast.success('Group created successfully!');
+        navigate(`/groups/${newGroupId}`, { replace: true });
+      });
 
     } catch (error) {
         console.error('File upload failed:', error);
+        toast.error('Error when creating new group');
         setIsCreatingConversation(false);
     }
   }
-
-  // listen for new group/conversation created
-  useEffect(() => {
-    if (!isCreatingConversation || !newConversation?.id) return;
-
-    toast.success('New group created');
-    navigate(`/groups/${newConversation?.id}`);
-
-  }, [isCreatingConversation, newConversation]);
 
   const searchUsers = (search) => {
         if (!search.trim()) { // if search is empty get all

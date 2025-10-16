@@ -1,9 +1,8 @@
-import React from 'react'
 import '../Auth.css'
 import Button from '../../../components/Button/Button'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import axiosInstance, { getFileUrl } from '../../../service/axios'
+import axiosInstance from '../../../service/axios'
 import useAuth from '../../../hook/useAuth'
 import toast from 'react-hot-toast'
 

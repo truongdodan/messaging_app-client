@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './Chats.css'
 import ConversationList from '../../components/ConversationList/ConversationList'
-import Chat from '../../components/Chat/Chat'
-import axiosInstance from '../../service/axios'
-import useConversation from '../../hook/useConversation'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import UserList from '../../components/UserList/UserList'
+import useMessaging from '../../hook/useMessaging'
 
 const Chats = () => {
-  const { conversationItems, conversationItemsLoading } = useConversation();
+  const {getConversationsByType, conversationsLoading} = useMessaging();
   const [findUserTabOpen, setFindUserTabOpen] = useState(false);
 
   return (
@@ -17,8 +15,8 @@ const Chats = () => {
           findUserTabOpen
           ? <UserList onCloseIconClick={() => {setFindUserTabOpen(false)}}/>
           : <ConversationList  
-              loading={conversationItemsLoading} 
-              conversations={conversationItems?.filter(conversationItem => conversationItem?.type === "DIRECT")} 
+              loading={conversationsLoading} 
+              conversations={getConversationsByType("DIRECT")} 
               onNewIconClick={() => {setFindUserTabOpen(true)}}
             />
         }

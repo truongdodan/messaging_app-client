@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import './Chat.css'
-import { ArrowLeftIcon, CurlyBraces, Image, Paperclip, SendHorizonal } from 'lucide-react'
+import { Paperclip, SendHorizonal } from 'lucide-react'
 import Message from '../Message/Message'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import GoBackBtn from '../GoBackBtn/GoBackBtn'
-import useChat from '../../hook/useChat'
-import axiosInstance, { uploadFile } from '../../service/axios'
+import { uploadFile } from '../../service/axios'
 import useAuth from '../../hook/useAuth'
-import useConversation from '../../hook/useConversation'
 import { UserSkeleton } from '../Sekeleton/Skeleton'
+import useMessaging from '../../hook/useMessaging';
 
 const BlankChat = () => {
     return <div style={{
@@ -64,14 +63,19 @@ const formatDateSeparator = (dateString) => {
     });
 }
 
-const Chat = ({type, globalChatIndex}) => {
+const Chat = ({type}) => {
     const location = useLocation();
     const {conversationId} = useParams();
     const navigate = useNavigate();
 
     const {auth} = useAuth();
-    const {currentChat, currentChatLoading, sendMessage} = useChat(type === "GLOBAL" ? globalChatIndex : conversationId);
-    const {conversationItems, conversationItemsLoading} = useConversation();
+    const {
+      loadConversationMessages,
+      getCurrentConversation,
+      sendMessage,
+      currentConversationId
+    } = useMessaging();
+    const currentChat = getCurrentConversation();
 
     const [messageInput, setMessageInput] = useState("");
     const [loading, setLoading] = useState(true);
@@ -82,50 +86,29 @@ const Chat = ({type, globalChatIndex}) => {
     const fileInputRef = useRef(null);
     
     const chatOpen = location.pathname !== "/chats" || location.pathname !== "/groups";
-    const [converTitle, setConverTitle] = useState();
-    const [converProfile, setConverProfile] = useState();
 
-
-    // set title and profile for the conversation
+    // Load current conversation's message
     useEffect(() => {
-        if (currentChatLoading) return;
+        loadConversationMessages(conversationId);
+    }, [conversationId, loadConversationMessages]);
 
-            // return if conversation items is loading
-            if (!conversationItems && conversationItemsLoading) return;
-
-            // set title and profile for header
-            const currentItem = conversationItems?.find(
-                item => item?.id === conversationId
-            );
-            if (type === "DIRECT") {
-
-                const otherParticipant = currentItem?.participants?.find(
-                    par => par?.user?.id !== auth?.user?.id
-                );
-                setConverTitle(otherParticipant?.user?.username || "Unknown User");
-                setConverProfile(otherParticipant?.user?.profileUrl || "/user.png");
-            } else if (type === "GROUP") {
-                setConverTitle(currentItem?.title);
-                setConverProfile(currentItem?.profileUrl);
-            } else if (type === "GLOBAL") {
-                setConverTitle(currentChat?.title);
-                setConverProfile(currentChat?.profileUrl);
-            }
-
-            setLoading(false); 
-    }, [currentChatLoading, auth?.user?.id, type, currentChat, conversationItems, conversationItemsLoading]);
+    // Loading current chat for header infor
+    useEffect(() => {
+        if (!currentChat) return;
+        setLoading(false);
+    }, [currentChat]);
 
     // if there is pending message, send it
     useEffect(() => {
         const pendingMessage = location?.state?.pendingMessage;
 
-        if (pendingMessage && currentChat?.id && !currentChatLoading && !hasSendPendingMessageRef.current) {
+        if (pendingMessage && currentChat?.id && !hasSendPendingMessageRef.current) {
             hasSendPendingMessageRef.current = true;
             // clear state so it doesnt resend on re-render
             navigate('.', { replace: true, state: {} });
             sendMessage(pendingMessage);
         }
-    }, [currentChat?.id, currentChatLoading, location, navigate, sendMessage]);  //// remove currentChat from dependency might cause errors - it show for a sec then disapr
+    }, [currentChat?.id, location, navigate, sendMessage]);  //// remove currentChat from dependency might cause errors - it show for a sec then disapr
 
     const onSendMessage = useCallback(() => {
             if (!messageInput.trim()) return;
@@ -136,6 +119,7 @@ const Chat = ({type, globalChatIndex}) => {
             setMessageInput("");
         }, [messageInput, sendMessage]);
 
+    // When user press Enter
     const handleKeydown = useCallback((e) => {
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault(); // stop newline/submit
@@ -143,6 +127,7 @@ const Chat = ({type, globalChatIndex}) => {
             }
         }, [onSendMessage]);
 
+    // Scroll to the bottom of the chat
     const scrollToBottom = useCallback(() => {
         messageEndRef?.current?.scrollIntoView();
     }, []);
@@ -154,28 +139,18 @@ const Chat = ({type, globalChatIndex}) => {
         }
     }, [currentChat?.messages?.length, loading]);
 
+    // When user send a file in chat
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         
         try {
-            const path = await uploadFile(file);
-
-            // Send message with file details
-            const fileDetails = {
-                path,
-                filename: file.name,
-                mimetype: file.type,
-            };
-        
-            console.log(fileDetails);
-
-            sendMessage({ type: 'FILE', content: JSON.stringify(fileDetails) });
+            // Upload file
+            await uploadFile(currentConversationId, file);
 
         } catch (error) {
             console.error('File upload failed:', error);
-            // Handle error (e.g., show toast)
+            toast.error('Failed to upload file');
         }
     };
 
@@ -204,9 +179,9 @@ const Chat = ({type, globalChatIndex}) => {
             <div className='conversation__header'>
                 <GoBackBtn />
                 <div className="profile-container">
-                    <img src={converProfile ? converProfile : "/user.png"} alt="user profile" />
+                    <img src={currentChat.profileUrl ? currentChat.profileUrl : "/user.png"} alt="user profile" />
                 </div>
-                <div className="title conversation__title">{converTitle}</div>
+                <div className="title conversation__title">{currentChat.title}</div>
             </div>
             <hr />
             <div className="conversation__messages">

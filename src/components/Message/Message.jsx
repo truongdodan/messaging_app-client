@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
+import { useEffect, useState } from 'react'
 import './Message.css'
 import {EllipsisVertical} from 'lucide-react'
 
@@ -12,7 +11,7 @@ const MessageContent = ({type, content, onImageLoad}) => {
   useEffect(() => {
     // if message is a file/image, convert it from JSON format
     if (type === "FILE") {
-      const details = JSON.parse(content)
+      const details = JSON.parse(content);
       setFileDetails(details);
       setIsLoading(false); 
     }
@@ -26,15 +25,15 @@ const MessageContent = ({type, content, onImageLoad}) => {
       message = (
         <div className='message--image image-wrapper'>
             {
-              fileDetails?.path
-              ? <img src={fileDetails?.path || '#'} alt={fileDetails?.filename} onLoad={onImageLoad}/>
+              fileDetails?.url
+              ? <img src={fileDetails?.url || '#'} alt={fileDetails?.filename} onLoad={onImageLoad}/>
               : <div style={{color: "red"}}>Fail to load image</div>
             }
         </div>
       );
     } else {
       message = <div className='message--file file-wrapper message--text'>
-                  <a href={fileDetails?.path} target="_blank" rel="noopener noreferrer">
+                  <a href={fileDetails?.url} target="_blank" rel="noopener noreferrer">
                     {fileDetails?.filename}
                   </a>
                 </div>;
@@ -48,7 +47,6 @@ const MessageContent = ({type, content, onImageLoad}) => {
 // 'content' text content or image url.
 // 'label' indicate who the message coming from (SELF, OTHER)
 const Message = ({message, isSender, onImageLoad}) => {
-
   return (
     <>
       { 

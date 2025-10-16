@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './UserList.css'
-import { X } from 'lucide-react'
-import axiosInstance, { getFileUrl } from '../../service/axios'
+import axiosInstance from '../../service/axios'
 import useAuth from '../../hook/useAuth'
 import SidebarHeader from '../SidebarHeader/SidebarHeader'
 import { useNavigate } from 'react-router-dom'
@@ -47,7 +46,7 @@ const UserList = ({onCloseIconClick}) => {
         const getUser = async () => {
             try {
                 const res = await axiosInstance.get('/users');
-                const users = await getUserListWithImageUrl(res?.data || []);
+                const users = res?.data || [];
                 setUsers(users);
 
             } catch (error) {
@@ -63,38 +62,16 @@ const UserList = ({onCloseIconClick}) => {
         try {
             if (!search.trim()) { // if search is empty get all
                 const res = await axiosInstance.get('/users');
-                const users = await getUserListWithImageUrl(res?.data || []);
+                const users = res?.data || [];
                 setUsers(users);
             } else {
                 const res = await axiosInstance.get(`/users?search_query=${search}`);
-                const users = await getUserListWithImageUrl(res?.data || []);
+                const users = res?.data || [];
                 setUsers(users);
             }
         } catch (error) {
             console.error("Error when searching for users: ", error);
         }
-    }
-
-    const getUserListWithImageUrl = async (userList) => {
-        if (!userList || userList?.length === 0) return [];
-
-        const usersWithUrl = await Promise.all(
-            userList?.map(async (user) => {
-                if (!user?.profileUrl) return user; // return if theres no profile image
-
-                try {
-                    const imageUrl = await getFileUrl(user.profileUrl);
-
-                    return {...user, profileUrl: imageUrl}
-                } catch (error) {
-                    console.error("Error when fetching user image from cloud: ", error);
-
-                    return {...user, profileUrl: '/user.png'};
-                }
-            })
-        );
-
-        return usersWithUrl;
     }
 
     const handleOnchange = (e) => {

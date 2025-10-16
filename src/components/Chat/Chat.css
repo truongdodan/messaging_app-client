@@ -1,5 +1,6 @@
 .conversation {
     height: 100%;
+    width: 100%;
 
     display: flex;
     flex-direction: column;
@@ -84,7 +85,6 @@
 @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ 
     /* only show one page at a time */
     .conversation--open {
-
     }
 }
 @media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }

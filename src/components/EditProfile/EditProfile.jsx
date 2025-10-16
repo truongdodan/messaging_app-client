@@ -3,7 +3,7 @@ import './EditProfile.css'
 import { ArrowLeftIcon, Camera, Pen } from 'lucide-react';
 import Button from '../Button/Button'
 import GoBackBtn from '../GoBackBtn/GoBackBtn';
-import axiosInstance, { uploadFile } from '../../service/axios';
+import axiosInstance, { uploadFile, uploadPublicFile } from '../../service/axios';
 import useAuth from '../../hook/useAuth';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -40,13 +40,13 @@ const EditProfile = () => {
     // validate file type
     if (!file.type.startsWith('image/')) {
       // inform wrong file type
-      console.error("Only accept image file");
+      // toast.error("Only image files are allowed");
       return;
     }
 
     // validate file size (max: 5mb)
     if (file.size > 5 * 1024 * 1024) {
-      console.error("Image should be less than 5MB");
+      // toast.error("Image must be less than 5MB");
       return;
     }
 
@@ -67,48 +67,46 @@ const EditProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!newProfile && !fileRef?.current?.files[0]) return;
+    if (!newProfile.username?.trim() || !newProfile.firstname?.trim() || !newProfile.lastname?.trim()) {
+      toast.error('Please fill in all required fields');
+    return;
+  }
 
     setIsUpdatingProfile(true);
 
-    let updatedProfle = {...newProfile};
-
-    if (fileRef?.current?.files[0]) {
-      try {
-        const file = fileRef.current.files[0];
-
-        const imageName = await uploadFile(file);
-        updatedProfle.profileUrl = imageName;
-
-      } catch (error) {
-        console.error("Error when uploading file: ", error);
-      }
-    }
-
     try {
-      const res = await axiosInstance.patch('/users', updatedProfle);  
-      let newUserData = res.data;
-
-      const newAuth = {
-        ...auth,
-        user: {
-          ...auth.user,
-          profileUrl: newUserData?.profileUrl,
-          username: newUserData?.username,
-          firstname: newUserData?.firstname,
-          lastname: newUserData?.lastname,
-          bio: newUserData?.bio,
-        }
+      const formData = new FormData();
+      
+      // Add text fields (only if changed)
+      if (newProfile.username !== auth?.user?.username) formData.append('username', newProfile.username);
+      if (newProfile.firstname !== auth?.user?.firstname) formData.append('firstname', newProfile.firstname);
+      if (newProfile.lastname !== auth?.user?.lastname) formData.append('lastname', newProfile.lastname);
+      if (newProfile.bio !== auth?.user?.bio) formData.append('bio', newProfile.bio || '');
+      
+      // Add file if selected
+      if (fileRef?.current?.files[0]) {
+        formData.append('profileImage', fileRef.current.files[0]);
       }
 
-      setAuth(newAuth);
+      const res = await axiosInstance.patch('/users', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      // Update auth with server response
+      setAuth({
+        ...auth,
+        user: { ...auth.user, ...res.data }
+      });
+      
       toast.success('Profile updated!');
       navigate('/profile');
     } catch (error) {
       console.error("Error update profile: ", error);
-      toast.error('Error updating profile');
-    } finally {isUpdatingProfile(false);}
-
+      toast.error(error?.response?.data?.message || 'Error updating profile');
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+    
   }
 
   return (

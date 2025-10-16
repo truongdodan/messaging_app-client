@@ -1,12 +1,10 @@
-import React, { useEffect } from 'react'
 import Conversation from '../Conversation/Conversation';
 import './ConversationList.css'
-import { Plus } from 'lucide-react';
 import {useLocation} from 'react-router-dom'
 import SidebarHeader from '../SidebarHeader/SidebarHeader';
-import useConversation from '../../hook/useConversation'
 import useSocket from '../../hook/useSocket';
 import { ConversationSkeleton } from '../Sekeleton/Skeleton';
+
 
 // get list of conversation for data
 // get function to determine what the new icon do - find user or create new group chat

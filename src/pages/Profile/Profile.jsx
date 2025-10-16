@@ -1,8 +1,5 @@
-import React from 'react'
 import './Profile.css'
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom'
-import { Sidebar } from 'lucide-react'
-import useAuth from '../../hook/useAuth'
 import GoBackBtn from '../../components/GoBackBtn/GoBackBtn'
 
 const Tab = () => {

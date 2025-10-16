@@ -7,7 +7,7 @@ import useAuth from '../../hook/useAuth'
 const Layout = () => {
   // get location for the current tab display
   const location = useLocation();
-  const {auth, setAuth} = useAuth();
+  const {setAuth} = useAuth();
 
 
   return (

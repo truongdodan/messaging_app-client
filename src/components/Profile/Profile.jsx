@@ -4,8 +4,7 @@ import Button from '../Button/Button'
 import { Camera } from 'lucide-react'
 import useAuth from '../../hook/useAuth'
 import { useNavigate, useParams } from 'react-router-dom'
-import axiosInstance, { uploadFile } from '../../service/axios'
-import useConversation from '../../hook/useConversation'
+import axiosInstance, { uploadPublicFile } from '../../service/axios'
 
 const Profile = () => {
     const {auth, setAuth} = useAuth();
@@ -57,30 +56,23 @@ const Profile = () => {
         setUploadingCover(true);
 
         try {
-            // Upload file to Supabase
-            const imagePath = await uploadFile(file);
+            const formData = new FormData();
+            formData.append('coverImage', file);  // Send file directly
 
-            // Update user profile with new cover
-            const res = await axiosInstance.patch('/users', {
-                firstname: auth.user.firstname,
-                lastname: auth.user.lastname,
-                username: auth.user.username,
-                coverUrl: imagePath,
+            const res = await axiosInstance.patch('/users', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             // Update auth context
-            const newAuth = {
+            setAuth({
                 ...auth,
                 user: {
                     ...auth.user,
                     coverUrl: res.data.coverUrl,
                 }
-            };
-            
-            await setAuth(newAuth);
+            });
         } catch (error) {
             console.error('Error uploading cover photo:', error);
-            console.error('Failed to update cover photo');
         } finally {
             setUploadingCover(false);
         }
@@ -92,6 +84,12 @@ const Profile = () => {
             coverFileRef.current?.click();
         }
     };
+
+    const handleStartChat = () => {
+        navigate(`/chats/new/${currentDisplayUser.id}`, {
+            state: { user: currentDisplayUser }  // Pass user data to avoid re-fetching
+        });
+    }
 
     if (currentDisplayUserLoading) return <div>Loading user profile...</div>
 
@@ -132,7 +130,7 @@ const Profile = () => {
             <div className="profile__buttons">
                 {
                     userId
-                    ?   <Button text={'Send Message'} onClick={() => {navigate(`/chats/new/${userId}`)}}/>
+                    ?   <Button text={'Send Message'} onClick={handleStartChat}/>
                     :   <>
                             <Button text={'Edit Profile'} onClick={() => {navigate("/profile/edit")}} />
                             <Button text={'Change Password'} className={'profile__change-password-btn'} onClick={() => {navigate("/profile/changepassword")}}/>

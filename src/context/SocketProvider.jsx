@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import useAuth from "../hook/useAuth"
 import socketService from "../service/socket"
-import { data } from "react-router-dom";
 
 const SocketContext = createContext({});
 

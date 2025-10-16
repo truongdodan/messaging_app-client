@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './Groups.css'
 import ConversationList from '../../components/ConversationList/ConversationList'
-import Chat from '../../components/Chat/Chat'
-import useConversation from '../../hook/useConversation'
-import axiosInstance from '../../service/axios'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import useMessaging from '../../hook/useMessaging'
+
 
 const Groups = () => {
-  const {conversationItems, conversationItemsLoading} = useConversation();
+  const {getConversationsByType, conversationsLoading} = useMessaging();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,8 +16,8 @@ const Groups = () => {
   return (
     <div className={`groups ${newGroupOpen && 'new-group--open'}`}>
         <ConversationList 
-          conversations={conversationItems?.filter(conversationItem => conversationItem?.type === "GROUP")} 
-          loading={conversationItemsLoading}
+          conversations={getConversationsByType("GROUP")} 
+          loading={conversationsLoading}
           closable={closable} 
           onNewIconClick={() => {
             navigate("/groups/new");

@@ -1,7 +1,6 @@
 import { createContext } from "react";
 import { useEffect, useState, useRef } from "react";
-import axiosInstance, { getFileUrl, interceptorsSetup } from "../service/axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import axiosInstance, { interceptorsSetup } from "../service/axios";
 
 const AuthContext = createContext({});
 
@@ -17,47 +16,8 @@ export const AuthProvider = ({children}) => {
             return;
         }
 
-        const isValidUrl = (value) => {
-            try {
-                const url = new URL(value);
-
-                return url.protocol === "https:" || url.protocol === "http:";
-            } catch {
-                return false;
-            }
-        }
-
-        let profileUrl;
-        let coverUrl;
-
-        try {
-            // check if profile url need to be fetch
-            if (auth?.user?.profileUrl && !isValidUrl(auth?.user?.profileUrl)) {
-                profileUrl = await getFileUrl(auth.user.profileUrl);
-            }
-
-            // check if cover url need to be fetch
-            if (auth?.user?.coverUrl && !isValidUrl(auth?.user?.coverUrl)) {
-                coverUrl = await getFileUrl(auth.user.coverUrl);
-            }
-
-            const authWithUrl = {
-                ...auth,
-                user: {
-                    ...auth.user,
-                    ...(profileUrl && {profileUrl: profileUrl}),
-                    ...(coverUrl && {coverUrl: coverUrl}),
-                }
-            };
-
-            authRef.current = authWithUrl;
-            setAuthState(authWithUrl);
-            return;
-        } catch (error) {
-            console.error("Error fetching profile or cover url: ", error);
-            authRef.current = auth
-            setAuthState(auth);
-        }
+        authRef.current = auth;
+        setAuthState(auth);
 
     }
     const getAuth = () => authRef.current;
