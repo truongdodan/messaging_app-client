@@ -84,6 +84,18 @@ class SocketService {
     }
   }
 
+  deleteMessage(messageId) {
+    if (this.socket) {
+      this.socket.emit("delete_message", { messageId });
+    }
+  }
+
+  onRemovedMessage(callback) {
+    if (this.socket) {
+      this.socket.on("removed_message", callback);
+    }
+  }
+
   onOnlineUserList(callback) {
     if (this.socket) {
       this.socket.on("online_users_list", callback);

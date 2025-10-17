@@ -21,26 +21,25 @@ export const MessagingProvider = ({ children }) => {
   const [conversationsLoading, setConversationsLoading] = useState(true);
   const [currentConversationId, setCurrentConversationId] = useState(null);
 
-  
-  // Fetch all conversations 
+  // Fetch all conversations
   useEffect(() => {
     if (!auth?.accessToken) return;
 
     const fetchConversations = async () => {
       try {
-        const res = await axiosInstance.get('/conversations');
+        const res = await axiosInstance.get("/conversations");
         const conversationList = res?.data || [];
 
         // Backend already returns URLs! Just add empty messages array
-        const conversationsWithMessages = conversationList.map(conv => ({
+        const conversationsWithMessages = conversationList.map((conv) => ({
           ...conv,
-          messages: [] // Initialize empty, load on-demand
+          messages: [], // Initialize empty, load on-demand
         }));
 
         setConversations(conversationsWithMessages);
       } catch (error) {
         console.error("Error fetching conversations:", error);
-        toast.error('Failed to load conversations');
+        toast.error("Failed to load conversations");
       } finally {
         setConversationsLoading(false);
       }
@@ -54,21 +53,19 @@ export const MessagingProvider = ({ children }) => {
     if (!socket || !isConnected) return;
 
     const handleNewConversation = (newConversation) => {
-      setConversations(prev => {
+      setConversations((prev) => {
         // Prevent duplicates
-        const exists = prev.some(conv => conv.id === newConversation.id);
+        const exists = prev.some((conv) => conv.id === newConversation.id);
         if (exists) return prev;
 
         return [...prev, { ...newConversation, messages: [] }];
       });
-
-      toast.success('New conversation created!');
     };
 
     socket.onNewConversation(handleNewConversation);
 
     return () => {
-      socket.off('new_conversation', handleNewConversation);
+      socket.off("new_conversation", handleNewConversation);
     };
   }, [socket, isConnected]);
 
@@ -77,13 +74,15 @@ export const MessagingProvider = ({ children }) => {
     if (!socket || !isConnected) return;
 
     const handleNewMessage = (newMessage) => {
-      setConversations(prev => {
-        return prev.map(conv => {
+      setConversations((prev) => {
+        return prev.map((conv) => {
           // Only update the conversation that received the message
           if (conv.id !== newMessage.conversationId) return conv;
 
           // Check for duplicate
-          const isDuplicate = conv.messages?.some(msg => msg.id === newMessage.id);
+          const isDuplicate = conv.messages?.some(
+            (msg) => msg.id === newMessage.id
+          );
           if (isDuplicate) return conv;
 
           // Update both messages AND metadata
@@ -91,7 +90,7 @@ export const MessagingProvider = ({ children }) => {
             ...conv,
             messages: [...(conv.messages || []), newMessage],
             lastMessage: newMessage,
-            lastMessageAt: newMessage.createdAt
+            lastMessageAt: newMessage.createdAt,
           };
         });
       });
@@ -100,75 +99,132 @@ export const MessagingProvider = ({ children }) => {
     socket.onNewMessage(handleNewMessage);
 
     return () => {
-      socket.off('new_message', handleNewMessage);
+      socket.off("new_message", handleNewMessage);
     };
-  }, [socket, isConnected]); 
+  }, [socket, isConnected]);
 
-  // LOAD MESSAGES: Fetch full conversation
-  const loadConversationMessages = useCallback(async (conversationId) => {
-    if (!conversationId) return;
+  // SOCKET: Listen for removed messages
+  useEffect(() => {
+    if (!socket || !isConnected) return;
 
-    // Check if already loaded
-    const conversation = conversations.find(conv => conv.id === conversationId);
-    if (conversation?.messages?.length > 0) {
-      // Already loaded, just set as current
-      setCurrentConversationId(conversationId);
-      return;
-    }
-
-    try {
-      // Backend returns messages
-      const res = await axiosInstance.get(`/messages/${conversationId}`);
-      const messages = res?.data || [];
-
-      // Update conversation with loaded messages
-      setConversations(prev => {
-        return prev.map(conv => {
-          if (conv.id === conversationId) {
-            return {
-              ...conv,
-              messages: messages
-            };
-          }
-          return conv;
+    const handleRemovedMessage = (data) => {
+      setConversations((prev) => {
+        return prev.map((conv) => {
+          // Remove the message from the conversation
+          return {
+            ...conv,
+            messages:
+              conv.messages?.filter((msg) => msg.id !== data.messageId) || [],
+          };
         });
       });
+    };
 
-      setCurrentConversationId(conversationId);
-    } catch (error) {
-      console.error("Error loading conversation messages:", error);
-      toast.error('Failed to load messages');
-    }
-  }, [conversations]);
+    socket.onRemovedMessage(handleRemovedMessage);
+
+    return () => {
+      socket.off("removed_message", handleRemovedMessage);
+    };
+  }, [socket, isConnected]);
+
+  // LOAD MESSAGES: Fetch full conversation
+  const loadConversationMessages = useCallback(
+    async (conversationId) => {
+      if (!conversationId) return;
+
+      // Check if already loaded
+      const conversation = conversations.find(
+        (conv) => conv.id === conversationId
+      );
+      if (conversation?.messages?.length > 0) {
+        // Already loaded, just set as current
+        setCurrentConversationId(conversationId);
+        return;
+      }
+
+      try {
+        // Backend returns messages
+        const res = await axiosInstance.get(`/messages/${conversationId}`);
+        const messages = res?.data || [];
+
+        // Update conversation with loaded messages
+        setConversations((prev) => {
+          return prev.map((conv) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                messages: messages,
+              };
+            }
+            return conv;
+          });
+        });
+
+        setCurrentConversationId(conversationId);
+      } catch (error) {
+        console.error("Error loading conversation messages:", error);
+        toast.error("Failed to load messages");
+      }
+    },
+    [conversations]
+  );
 
   // CREATE CONVERSATION
   const createConversation = useCallback(
-    ({ title = "", type = 'DIRECT', profileUrl = "", allMemberIds } = {}, callback) => {
+    (
+      { title = "", type = "DIRECT", profileUrl = "", allMemberIds } = {},
+      callback
+    ) => {
       if (socket) {
-        socket.createConversation({ title, type, profileUrl, allMemberIds }, callback);
+        socket.createConversation(
+          { title, type, profileUrl, allMemberIds },
+          callback
+        );
       }
     },
     [socket]
   );
 
   // SEND MESSAGE
-  const sendMessage = useCallback(({ type = 'TEXT', content }) => {
-    if (socket && currentConversationId) {
-      socket.sendMessage({type, content, conversationId: currentConversationId});
-    }
-  }, [socket, currentConversationId]);
+  const sendMessage = useCallback(
+    ({ type = "TEXT", content, conversationId }) => {
+      const targetConversationId = conversationId || currentConversationId;
+
+      if (socket && targetConversationId) {
+        socket.sendMessage({
+          type,
+          content,
+          conversationId: targetConversationId,
+        });
+      }
+    },
+    [socket, currentConversationId]
+  );
+
+  // DELETE MESSAGE
+  const deleteMessage = useCallback(
+    (messageId) => {
+      if (socket) {
+        socket.deleteMessage(messageId);
+      }
+    },
+    [socket]
+  );
 
   // HELPERS
   const getCurrentConversation = useCallback(() => {
-    return conversations.find(conv => conv.id === currentConversationId);
+    return conversations.find((conv) => conv.id === currentConversationId);
   }, [conversations, currentConversationId]);
 
-  const getConversationsByType = useCallback((type) => {
-    return conversations.filter(conv => conv.type === type);
-  }, [conversations]);
+  const getConversationsByType = useCallback(
+    (type) => {
+      return conversations.filter((conv) => conv.type === type);
+    },
+    [conversations]
+  );
 
   const getGlobalConversation = useCallback(() => {
-    return conversations.find(conv => conv.type === "GLOBAL");
+    return conversations.find((conv) => conv.type === "GLOBAL");
   }, [conversations]);
 
   // CONTEXT VALUE
@@ -182,12 +238,13 @@ export const MessagingProvider = ({ children }) => {
     loadConversationMessages,
     createConversation,
     sendMessage,
+    deleteMessage,
     setCurrentConversationId,
 
     // Helpers
     getCurrentConversation,
     getConversationsByType,
-    getGlobalConversation
+    getGlobalConversation,
   };
 
   return (
