@@ -92,23 +92,16 @@ const Chat = ({ type }) => {
   const chatOpen =
     location.pathname !== "/chats" || location.pathname !== "/groups";
 
-  // Load chat and check for pending message
+  // Load current conversation's message
   useEffect(() => {
-    const handleChatLoadAndPending = async () => {
-      await loadConversationMessages(conversationId); // ensure chat is loaded first
+    loadConversationMessages(conversationId);
+  }, [conversationId, loadConversationMessages]);
 
-      // now check pending message
-      const pendingMessage = location?.state?.pendingMessage;
-      const chat = getCurrentConversation();
-      if (pendingMessage && chat?.id && !hasSendPendingMessageRef.current) {
-        hasSendPendingMessageRef.current = true;
-        navigate(".", { replace: true, state: {} });
-        sendMessage({ ...pendingMessage, conversationId: chat.id });
-      }
-    };
-
-    handleChatLoadAndPending();
-  }, [conversationId, location, navigate, sendMessage]);
+  // Loading current chat for header info
+  useEffect(() => {
+    if (!currentChat) return;
+    setLoading(false);
+  }, [currentChat]);
 
   // Loading current chat for header infor
   useEffect(() => {
