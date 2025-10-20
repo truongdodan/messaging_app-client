@@ -27,7 +27,8 @@ export const interceptorsSetup = (getAuth, setAuth) => {
       const statusCode = err?.response?.status;
       const originalRequest = err.config;
 
-      if (statusCode === 401 && !originalRequest._retry) {
+      const isRefreshRequest = originalRequest.url?.includes("/refresh");
+      if (statusCode === 401 && !originalRequest._retry && !isRefreshRequest) {
         // Set a _retry flag to avoid infinite loop
         originalRequest._retry = true;
 
