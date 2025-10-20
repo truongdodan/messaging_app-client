@@ -16,6 +16,8 @@
     width: min(100%, 450px);
 }
 .auth__logo {
+    font-size: 3.5rem;
+    font-weight: bold;
     position: relative;
     bottom: 1.5rem;
 }
@@ -35,6 +37,7 @@
 
     object-fit: cover;
 }
+
 /* form */
 .auth__form {
     display: flex;
@@ -78,8 +81,12 @@
 }
 
 /* logo */
+.auth-wrapper .img-wrapper {
+    width: min(30%, 400px);
+
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
 .auth-wrapper .img-wrapper img {
-    width: 70%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 50%;

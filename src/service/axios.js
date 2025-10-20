@@ -1,7 +1,7 @@
 import axios from "axios";
-
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 const axiosInstance = axios.create({
-  baseURL: "https://messaging-app-server-8fox.onrender.com",
+  baseURL: serverUrl,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

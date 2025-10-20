@@ -6,6 +6,26 @@
     width: 100vw;
     height: 100vh;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--color-bg-secondary);
+}
+
+.auth-loading__content {
+    /* width: 5rem; */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 1rem;
+
     background-color: var(--color-bg);
-    padding: 50vh 50vw;
+    font-size: large;
+
+}
+
+.auth-loading .spinner {
+    border-radius: 50%;
 }

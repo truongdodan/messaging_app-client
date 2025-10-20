@@ -22,7 +22,6 @@ class SocketService {
 
   setupEventListener() {
     this.socket.on("connect", () => {
-      console.log("User connect to server");
       this.isConnected = true;
 
       //join all conver participated
@@ -30,13 +29,10 @@ class SocketService {
     });
 
     this.socket.on("disconnect", () => {
-      console.log("User disconnect to server");
       this.isConnected = false;
     });
 
-    this.socket.on("connect_error", (err) => {
-      console.log("Connect error: ", err.message);
-    });
+    this.socket.on("connect_error", (err) => {});
   }
 
   disconnect() {
