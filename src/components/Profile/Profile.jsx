@@ -5,6 +5,7 @@ import { Camera } from "lucide-react";
 import useAuth from "../../hook/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { uploadPublicFile } from "../../service/axios";
+import { UserProfileSkeleton } from "../Sekeleton/Skeleton";
 
 const Profile = () => {
   const { auth, setAuth } = useAuth();
@@ -93,7 +94,7 @@ const Profile = () => {
     });
   };
 
-  if (currentDisplayUserLoading) return <div>Loading user profile...</div>;
+  if (currentDisplayUserLoading) return <UserProfileSkeleton />;
 
   return (
     <div className="profile">

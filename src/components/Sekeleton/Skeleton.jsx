@@ -1,66 +1,94 @@
-import React from 'react'
-import './Skeleton.css'
+import React from "react";
+import "./Skeleton.css";
 
-export const Spinner = ({size='small'}) => {
-    return <div className={`spinner spinner--${size}`}></div>;
-}
+export const Spinner = ({ size = "small" }) => {
+  return <div className={`spinner spinner--${size}`}></div>;
+};
 
-export const Skeleton = ({width = '100%', height = '2.5rem', borderRadius='8px'}) => {
+export const Skeleton = ({
+  width = "100%",
+  height = "2.5rem",
+  borderRadius = "8px",
+}) => {
   return (
-    <div
-        className='skeleton'
-        style={{width, height, borderRadius}}
-    ></div>
-  )
-}
+    <div className="skeleton" style={{ width, height, borderRadius }}></div>
+  );
+};
 
 export const ConversationSkeleton = () => {
   return (
     <div className="conversation-skeleton">
-        <Skeleton />
+      <Skeleton />
     </div>
   );
-}
+};
 
 export const UserSkeleton = () => {
   return (
     <div className={`conversation conversation--direct`}>
-        <div className="conversation__body">
-            <div className='conversation__header'>
-                <div className="skeleton skeleton--circle"></div>
-                <Skeleton width='20%' height='2rem' borderRadius='1rem'/>
-            </div>
-            <hr />
-            <div className="conversation__messages">
-                <MessageSkeleton width='15%'/>
-                <MessageSkeleton />
-                <MessageSkeleton fromSelf={true} width='10%'/>
-                <MessageSkeleton fromSelf={true}/>
-                <MessageSkeleton />
-                <MessageSkeleton width='50%'/>
-                <MessageSkeleton width='20%' fromSelf={true}/>
-                <MessageSkeleton width='30%'/>
-                <MessageSkeleton width='40%'/>
-            </div> 
-            <hr />
-            <form className="conversation__form">
-              <Skeleton borderRadius='1rem' height='3rem'/>
-                <div className="skeleton skeleton--circle"></div>
-                <div className="skeleton skeleton--circle"></div>
-            </form>
+      <div className="conversation__body">
+        <div className="conversation__header">
+          <div className="skeleton skeleton--circle"></div>
+          <Skeleton width="20%" height="2rem" borderRadius="1rem" />
         </div>
-    </div>  
-  );
-}
-
-export const MessageSkeleton = ({width='30%', height='2.5rem', fromSelf}) => {
-  return (
-    <div className={`message-skeleton ${fromSelf ? 'from-self' : ''}`}>
-      <div className="skeleton skeleton--circle"></div>
-      <Skeleton width={width} height={height} borderRadius='1rem'/>
+        <hr />
+        <div className="conversation__messages">
+          <MessageSkeleton width="15%" />
+          <MessageSkeleton />
+          <MessageSkeleton fromSelf={true} width="10%" />
+          <MessageSkeleton fromSelf={true} />
+          <MessageSkeleton />
+          <MessageSkeleton width="50%" />
+          <MessageSkeleton width="20%" fromSelf={true} />
+          <MessageSkeleton width="30%" />
+          <MessageSkeleton width="40%" />
+        </div>
+        <hr />
+        <form className="conversation__form">
+          <Skeleton borderRadius="1rem" height="3rem" />
+          <div className="skeleton skeleton--circle"></div>
+          <div className="skeleton skeleton--circle"></div>
+        </form>
+      </div>
     </div>
   );
-}
+};
+
+export const MessageSkeleton = ({
+  width = "30%",
+  height = "2.5rem",
+  fromSelf,
+}) => {
+  return (
+    <div className={`message-skeleton ${fromSelf ? "from-self" : ""}`}>
+      <div className="skeleton skeleton--circle"></div>
+      <Skeleton width={width} height={height} borderRadius="1rem" />
+    </div>
+  );
+};
+
+export const UserProfileSkeleton = ({ width = "20%", height = "2.5rem" }) => {
+  return (
+    <div className="profile">
+      <div className="profile__pictures">
+        <div className="profile__cover-photo">
+          <Skeleton width="100%" height="100%" borderRadius="0.5rem" />
+        </div>
+        <div className="profile__profile-picture">
+          <div
+            className="skeleton skeleton--circle"
+            style={{ width: "100%" }}
+          ></div>
+        </div>
+      </div>
+      <Skeleton width="8rem" height={height} borderRadius="0.5rem" />
+      <br />
+      <Skeleton width="40%" height={height} borderRadius="0.5rem" />
+      <br />
+      <Skeleton width={width} height={height} borderRadius="0.5rem" />
+    </div>
+  );
+};
 
 /* export const ImageSkeleton = () => {
   return (
