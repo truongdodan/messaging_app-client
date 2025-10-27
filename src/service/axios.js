@@ -33,7 +33,7 @@ export const interceptorsSetup = (getAuth, setAuth) => {
         originalRequest._retry = true;
 
         try {
-          const res = await axiosInstance.get("/refresh", { _retry: true });
+          const res = await axiosInstance.get("/refresh");
           const newAccessToken = res.data.accessToken;
 
           setAuth({
