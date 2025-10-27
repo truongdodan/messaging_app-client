@@ -1,5 +1,9 @@
 .search-user {
     width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
 }
 
 /* user */
@@ -7,6 +11,9 @@
     display: flex;
     flex-direction: column;
     row-gap: 0.5rem;
+
+    height: 100%;
+    overflow-y: auto;
 }
 .user-item {
     display: flex;
