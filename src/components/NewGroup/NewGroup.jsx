@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import "./NewGroup.css";
 import { Pen } from "lucide-react";
 import Button from "../Button/Button";
@@ -35,13 +35,13 @@ const NewGroup = () => {
     // validate file type
     if (!file.type.startsWith("image/")) {
       // inform wrong file type
-      console.error("Only accept image file");
+      toast.error("Only image files are allowed");
       return;
     }
 
     // validate file size (max: 5mb)
     if (file.size > 5 * 1024 * 1024) {
-      console.error("Image should be less than 5MB");
+      toast.error("Image should be less than 5MB");
       return;
     }
 

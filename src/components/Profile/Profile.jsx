@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./Profile.css";
 import Button from "../Button/Button";
 import { Camera } from "lucide-react";
@@ -6,6 +6,7 @@ import useAuth from "../../hook/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { uploadPublicFile } from "../../service/axios";
 import { UserProfileSkeleton } from "../Sekeleton/Skeleton";
+import toast from "react-hot-toast";
 
 const Profile = () => {
   const { auth, setAuth } = useAuth();
@@ -18,7 +19,7 @@ const Profile = () => {
 
   const coverFileRef = useRef();
 
-  // get user
+  // Get user
   useEffect(() => {
     if (!userId) {
       // if in the login user profile
@@ -46,13 +47,13 @@ const Profile = () => {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      console.error("Only image files are allowed");
+      toast.error("Only image files are allowed");
       return;
     }
 
     // Validate file size (max: 5mb)
     if (file.size > 5 * 1024 * 1024) {
-      console.error("Image should be less than 5MB");
+      toast.error("Image should be less than 5MB");
       return;
     }
 
