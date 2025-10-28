@@ -123,7 +123,6 @@ const Register = () => {
           </div>
           {error && <div className="error">{error}</div>}
           <div className="auth__buttons">
-            <Button text={"Global Chat"} className={"navigate-btn"} />
             <Button text={"Submit"} type="submit" loading={isRegistering} />
           </div>
         </form>
