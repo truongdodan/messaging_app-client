@@ -6,13 +6,6 @@ import axiosInstance from "../../../service/axios";
 import useAuth from "../../../hook/useAuth";
 import toast from "react-hot-toast";
 
-const hoa = "dodantruong69@gmail.com";
-const truongreal = "dodantruong333@gmail.com";
-const gigachad = "deepbreathandtakeitslow999@gmail.com";
-const truongfake = "dodantruong04@gmail.com";
-const guessUser = "guessuser@gmail.com";
-const guessUserPwd = "Password@123";
-
 const Login = () => {
   const { setAuth } = useAuth();
   const [account, setAccount] = useState({
@@ -21,6 +14,7 @@ const Login = () => {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/chats";
@@ -59,7 +53,6 @@ const Login = () => {
         setError(firstError.msg || errorData.msg);
       } else {
         // Show generic error message
-        console.error("Login failed: ", error);
         setError(errorData?.msg || toast.error("Login failed! Try again"));
       }
     } finally {
@@ -102,14 +95,48 @@ const Login = () => {
           {error && <div className="error">{error}</div>}
           <div className="auth__buttons">
             <Button
-              text={"Login as Guess"}
+              text={"Login as Guest"}
               className={"navigate-btn"}
-              onClick={() => {
-                setAccount({
+              onClick={async (e) => {
+                e.preventDefault();
+                setIsGuestLoading(true);
+
+                const guestAccount = {
                   email: "guessuser@gmail.com",
                   password: "Strongp@ssword123",
-                });
+                };
+
+                try {
+                  const loginUser = await axiosInstance.post(
+                    "/login",
+                    guestAccount
+                  );
+                  await setAuth({
+                    accessToken: loginUser.data.accessToken,
+                    user: loginUser.data.user,
+                  });
+
+                  toast.success("Login successfully");
+                  navigate("/chats", { replace: true });
+                } catch (error) {
+                  const errorData = error.response?.data?.error;
+
+                  // Check if validation errors exist
+                  if (errorData?.details && Array.isArray(errorData.details)) {
+                    // Show first validation error
+                    const firstError = errorData.details[0];
+                    setError(firstError.msg || errorData.msg);
+                  } else {
+                    // Show generic error message
+                    setError(
+                      errorData?.msg || toast.error("Login failed! Try again")
+                    );
+                  }
+                } finally {
+                  setIsLoading(false);
+                }
               }}
+              loading={isGuestLoading}
             />
             <Button text={"Submit"} loading={isLoading} />
           </div>
