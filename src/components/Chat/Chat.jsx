@@ -9,6 +9,7 @@ import useAuth from "../../hook/useAuth";
 import { UserSkeleton } from "../Sekeleton/Skeleton";
 import useMessaging from "../../hook/useMessaging";
 import { formatDateSeparator } from "../../utils/dateUtils";
+import useSocket from "../../hook/useSocket";
 
 const BlankChat = () => {
   return (
@@ -35,6 +36,7 @@ const Chat = ({ type }) => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
 
+  const { isConnected } = useSocket();
   const { auth } = useAuth();
   const {
     loadConversationMessages,
@@ -48,6 +50,7 @@ const Chat = ({ type }) => {
   const [loading, setLoading] = useState(true);
   const hasSendPendingMessageRef = useRef(false);
 
+  const [isSending, setIsSending] = useState(false);
   const sendMessageBtnRef = useRef(null);
   const messageEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -75,6 +78,12 @@ const Chat = ({ type }) => {
   const onSendMessage = useCallback(() => {
     if (!messageInput.trim()) return;
 
+    if (!isConnected) {
+      toast.error("You're offline. Message was not sent.");
+      return;
+    }
+
+    setIsSending(true);
     const newMessage = { type: "TEXT", content: messageInput };
     sendMessage(newMessage);
 
@@ -216,6 +225,7 @@ const Chat = ({ type }) => {
           <div
             className="icon-container send-message"
             onClick={onSendMessage}
+            display={isSending}
             ref={sendMessageBtnRef}
           >
             <SendHorizonal />

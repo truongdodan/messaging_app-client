@@ -191,11 +191,20 @@ export const MessagingProvider = ({ children }) => {
       const targetConversationId = conversationId || currentConversationId;
 
       if (socket && targetConversationId) {
-        socket.sendMessage({
-          type,
-          content,
-          conversationId: targetConversationId,
-        });
+        socket.sendMessage(
+          {
+            type,
+            content,
+            conversationId: targetConversationId,
+          },
+          (res) => {
+            if (res?.error) {
+              toast.error(
+                res?.error || "Failed to send message. Please try again."
+              );
+            }
+          }
+        );
       }
     },
     [socket, currentConversationId]

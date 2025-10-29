@@ -57,13 +57,17 @@ class SocketService {
     }
   }
 
-  sendMessage(data) {
+  sendMessage(data, callback) {
     if (this.socket) {
-      this.socket.emit("send_message", {
-        type: data.type || "TEXT",
-        content: data.content,
-        conversationId: data.conversationId,
-      });
+      this.socket.emit(
+        "send_message",
+        {
+          type: data.type || "TEXT",
+          content: data.content,
+          conversationId: data.conversationId,
+        },
+        callback
+      );
     }
   }
 
